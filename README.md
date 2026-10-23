@@ -14,8 +14,8 @@ optionally with your own images, into a custom wrap for Tesla's
 - Validates every output, renders a seam-check image, and builds a self-contained HTML
   preview to inspect it before uploading
 - **Two design modes, chosen on every request:** *code-drawn* (default, offline: Claude
-  designs with vector shapes, patterns and text) or opt-in *AI image mode* (an image model
-  such as OpenAI's GPT Image paints the artwork; the skill plans each image's size and safe
+  designs with vector shapes, patterns and text) or opt-in *AI image mode* (the host
+  platform's own image-generation model paints the artwork; the skill plans each image's size and safe
   area per vehicle, cuts the images across the panels, adds text itself, and validates as
   usual). See `skills/tesla-wrap-designer/references/ai-image-mode.md`
 
@@ -95,13 +95,11 @@ numpy (`pip install -r ~/.agents/skills/tesla-wrap-designer/requirements.txt`).
 
 ## AI image mode
 
-Optional and opt-in: the skill asks on every new request. Images come from, in order: the
-platform's own image tool (e.g. in ChatGPT), the bundled `scripts/generate_image.py` (any
-OpenAI-compatible Images API; set `OPENAI_API_KEY`, and optionally `OPENAI_BASE_URL` and
-`TESLA_WRAP_IMAGE_MODEL`, default `gpt-image-2`, in your environment, never in chat), or
-images you generate elsewhere and attach. Your design prompt is sent to that provider and
-may cost credits. Text on the wrap is always added by the skill itself, never by the image
-model.
+Optional and opt-in: the skill asks on every new request. It uses **only the image
+generation built into the platform you run it on** (e.g. ChatGPT's image generation). No API
+keys, external services or configuration are involved. On platforms without built-in image
+generation, the skill says so and designs in code-drawn mode. Text on the wrap is always
+added by the skill itself, never by the image model.
 
 ## Building
 

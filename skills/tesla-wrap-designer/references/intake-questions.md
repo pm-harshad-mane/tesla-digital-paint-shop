@@ -45,8 +45,8 @@ For images to place: ask for file paths; confirm they own them or have permissio
 
 ## Round 2b — design mode (mandatory on every new request)
 
-**Q7. Design mode?** Code-drawn (default, offline) · AI image mode (image model paints the
-artwork; prompt sent to a provider; may cost; results vary). Ask it every time, even if the
+**Q7. Design mode?** Code-drawn (default, local) · AI image mode (this platform's own image
+model paints the artwork; results vary; only if the host has image generation). Ask it every time, even if the
 user chose AI mode before. See `ai-image-mode.md`.
 
 ## Defaults when the user says "just go" / "surprise me"

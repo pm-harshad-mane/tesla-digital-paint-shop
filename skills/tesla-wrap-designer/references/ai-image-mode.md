@@ -13,27 +13,26 @@ panels, adds text itself, and validates everything as usual.
 At intake, for **every new wrap request** (never carry the answer over from an earlier
 request), ask:
 
-> **Design mode?** (a) Code-drawn, the default: offline and precise. (b) AI image mode:
-> an image model paints the artwork for a richer, more illustrated look. Your design prompt
-> is sent to an image provider, it may cost credits, and results vary between runs.
+> **Design mode?** (a) Code-drawn, the default: precise and fully local. (b) AI image mode:
+> this platform's image-generation model paints the artwork for a richer, more illustrated
+> look. It uses your image-generation allowance here, and results vary between runs.
 
-Use AI image mode **only after the user explicitly picks (b)**. Then tell them which image
-source will be used (below). If they don't answer, or are unsure, use code-drawn.
+Use AI image mode **only after the user explicitly picks (b)**. If they don't answer, or
+are unsure, use code-drawn.
 
-## Image sources, in order of preference
+## Image source: the host's own image generation only
 
-1. **The platform's own image-generation tool**, if this session has one (e.g. ChatGPT's
-   image generation, or an image tool or MCP connector the user has installed). Request each
-   asset at the planned size or aspect ratio.
-2. **`scripts/generate_image.py`**, an OpenAI-compatible Images API client. Use it only if
-   `OPENAI_API_KEY` is already set in the environment. Never ask the user to paste a key into
-   the chat. Model: `TESLA_WRAP_IMAGE_MODEL` (default `gpt-image-2`). Check the request with
-   `--dry-run` first if unsure.
-3. **User-supplied:** give the user the prompts and sizes from the plan, they generate the
-   images in any tool they like, and attach the results.
+AI image mode uses **only the image-generation capability built into the platform this skill
+is running on** (for example, image generation in ChatGPT, or an image tool the host app
+provides in this session). Before asking the mode question, check whether this session
+actually has such a tool:
 
-If none of these is available, say so and fall back to code-drawn mode. Claude cannot
-produce raster images itself.
+- **Available:** offer both modes as above. Generate each planned asset with that tool at
+  the planned size, or the closest aspect ratio the tool supports.
+- **Not available:** still mention the choice, but say plainly that this platform has no
+  image generation, so the wrap will be code-drawn. Do not look for, install, or configure
+  any other image service, API or key. (If the user already has artwork of their own, they
+  can attach it and it is placed with the same layer options.)
 
 ## Workflow
 
@@ -83,7 +82,7 @@ produce raster images itself.
 - The whole file must still be ≤ 1 MB. Photographic detail compresses poorly, so the
   finalizer may drop colour depth. Prefer painterly or illustrative styles with smooth areas
   over noisy photo textures.
-- Image providers apply their own content policies; a refused prompt needs rewording, not
+- The host's image model applies the platform's content policies; a refused prompt needs rewording, not
   workarounds.
-- Don't send personal data (names, photos of people, licence plates) to a provider unless
-  the user explicitly agreed. Names belong in text layers, which never leave the machine.
+- Don't put personal data (names, photos of people, licence plates) into image prompts unless
+  the user explicitly agreed. Names belong in text layers, which the skill draws with its own code.

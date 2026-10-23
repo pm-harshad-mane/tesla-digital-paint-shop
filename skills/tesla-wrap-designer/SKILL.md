@@ -49,9 +49,11 @@ number of variants. Franchise themes get the homage approach in
 `references/design-playbook.md` (original art, no copyrighted characters/logos) — say it once.
 
 **Design mode: ask on every new wrap request, never assume.** Offer (a) **Code-drawn**
-(default, offline) or (b) **AI image mode** (an image model paints the artwork; the design
-prompt goes to an image provider, it may cost credits, and results vary). Use the exact
-wording and image-source rules in `references/ai-image-mode.md`. AI image mode needs the
+(default, local) or (b) **AI image mode**: the host platform's own image-generation model
+paints the artwork; results vary. AI image mode uses only the host's built-in image
+generation, never an external API or key. If this session has none, say AI mode isn't
+available on this platform and continue code-drawn. Use the exact wording and rules in
+`references/ai-image-mode.md`. AI image mode needs the
 user's explicit "yes" for *this* request; a previous request's answer does not carry over.
 No answer, or unsure → code-drawn.
 
@@ -161,7 +163,6 @@ recolour) as a next step.
 | `make_check.py wrap.png --model ID` | Art-on-template review image |
 | `make_preview.py --model ID *.png -o out.html` | Self-contained HTML viewer with the wraps embedded |
 | `plan_ai_assets.py --model ID --out-dir DIR` | AI image mode: asset sizes/prompts + design.json |
-| `generate_image.py --prompt P --size S --out F` | AI image mode: OpenAI-compatible image API (key from env only) |
 | `selftest.py` | End-to-end test over all models (needs templates) |
 
 `assets/viewer/wrap-viewer.html` also works standalone in a browser: pick a model, drop PNGs →

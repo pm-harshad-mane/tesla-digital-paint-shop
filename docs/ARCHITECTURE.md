@@ -191,9 +191,8 @@ folder can be copied to a USB `Wraps/` directory without uploading review images
 reports the fraction of the image that survives the `cover` crop so prompts keep subjects in
 the safe band. It writes `ai_assets.json` and a `design.json` that places the images with
 `fill_panel` (cover the group, cut along panel outlines) and `image_front` (mirror per side
-so the car's front matches). `generate_image.py` is a minimal OpenAI-compatible Images
-client: env-only key, HTTPS only (localhost excepted), no logging of the key. Everything
-downstream (text layers, orientation check, finalize, validate) is unchanged.
+so the car's front matches). Images come only from the host platform's built-in image
+generation; the skill ships no API client and handles no keys. Everything downstream (text layers, orientation check, finalize, validate) is unchanged.
 
 ## Portability
 

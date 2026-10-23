@@ -17,7 +17,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from wrapkit import compose, models, templates  # noqa: E402
 
-# Sizes most image APIs accept (OpenAI gpt-image family); other tools: match the aspect.
+# Common image-generation sizes; if the host tool takes other sizes, match the aspect ratio.
 GEN_SIZES = [(1024, 1024), (1536, 1024), (1024, 1536)]
 
 NO_TEXT = ("No text, letters, numbers, logos, watermarks or signatures anywhere in the image. "
