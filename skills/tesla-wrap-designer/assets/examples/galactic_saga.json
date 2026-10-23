@@ -1,0 +1,311 @@
+{
+ "name": "Galactic_Saga",
+ "model": "model3-2024-base",
+ "seed": 11,
+ "base_color": "#02030a",
+ "layers": [
+  {
+   "type": "solid",
+   "color": "#02030a"
+  },
+  {
+   "type": "noise",
+   "kind": "nebula",
+   "scale": 330,
+   "colors": [
+    "#02030a",
+    "#241060",
+    "#a0267a",
+    "#ff7a3d",
+    "#3fb6ff"
+   ],
+   "blend": "screen",
+   "opacity": 0.95
+  },
+  {
+   "type": "pattern",
+   "kind": "lightspeed",
+   "density": 1.0,
+   "center": [
+    "50%",
+    "46%"
+   ],
+   "blend": "screen",
+   "opacity": 0.9
+  },
+  {
+   "type": "pattern",
+   "kind": "starfield",
+   "density": 1.2
+  },
+  {
+   "type": "shape",
+   "kind": "ellipse",
+   "center": [
+    512,
+    288
+   ],
+   "radius": 88,
+   "fill": "#14204f",
+   "glow": {
+    "color": "#5a9bff",
+    "radius": 30,
+    "strength": 1.0
+   },
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ellipse",
+   "center": [
+    500,
+    276
+   ],
+   "radius": 74,
+   "fill": "#2447a8",
+   "blur": 6,
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ellipse",
+   "center": [
+    488,
+    262
+   ],
+   "radius": 52,
+   "fill": "#4f86e8",
+   "blur": 14,
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ellipse",
+   "center": [
+    478,
+    252
+   ],
+   "radius": 26,
+   "fill": "#bcd8ff",
+   "blur": 16,
+   "clip": "panels",
+   "opacity": 0.8
+  },
+  {
+   "type": "shape",
+   "kind": "ellipse",
+   "center": [
+    560,
+    330
+   ],
+   "radius": 78,
+   "fill": "#02030a",
+   "blur": 22,
+   "clip": "panels",
+   "opacity": 0.55
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     48,
+     340
+    ],
+    [
+     34,
+     715
+    ]
+   ],
+   "width": 26,
+   "fill": "#2a9dff",
+   "blur": 4,
+   "clip": "panels",
+   "glow": {
+    "color": "#2a9dff",
+    "radius": 14,
+    "strength": 1.5
+   }
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     48,
+     340
+    ],
+    [
+     34,
+     715
+    ]
+   ],
+   "width": 9,
+   "fill": "#ffffff",
+   "blur": 0.8,
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     974,
+     340
+    ],
+    [
+     992,
+     715
+    ]
+   ],
+   "width": 26,
+   "fill": "#ff2a3d",
+   "blur": 4,
+   "clip": "panels",
+   "glow": {
+    "color": "#ff2a3d",
+    "radius": 14,
+    "strength": 1.5
+   }
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     974,
+     340
+    ],
+    [
+     992,
+     715
+    ]
+   ],
+   "width": 9,
+   "fill": "#ffffff",
+   "blur": 0.8,
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     330,
+     1000
+    ],
+    [
+     560,
+     862
+    ]
+   ],
+   "width": 26,
+   "fill": "#38ff7a",
+   "blur": 4,
+   "clip": "panels",
+   "glow": {
+    "color": "#38ff7a",
+    "radius": 14,
+    "strength": 1.5
+   }
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     330,
+     1000
+    ],
+    [
+     560,
+     862
+    ]
+   ],
+   "width": 9,
+   "fill": "#ffffff",
+   "blur": 0.8,
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     700,
+     1000
+    ],
+    [
+     470,
+     862
+    ]
+   ],
+   "width": 26,
+   "fill": "#ff2a3d",
+   "blur": 4,
+   "clip": "panels",
+   "glow": {
+    "color": "#ff2a3d",
+    "radius": 14,
+    "strength": 1.5
+   }
+  },
+  {
+   "type": "shape",
+   "kind": "line",
+   "points": [
+    [
+     700,
+     1000
+    ],
+    [
+     470,
+     862
+    ]
+   ],
+   "width": 9,
+   "fill": "#ffffff",
+   "blur": 0.8,
+   "clip": "panels"
+  },
+  {
+   "type": "text",
+   "text": "GALACTIC\nSAGA",
+   "font": "display",
+   "panel": "side",
+   "span": true,
+   "color": "#ffd54a",
+   "stroke": {
+    "color": "#7a4a00",
+    "width": 4
+   },
+   "glow": {
+    "color": "#ffb300",
+    "radius": 10,
+    "strength": 0.8
+   },
+   "letter_spacing": 4,
+   "panel_fill": 0.9
+  },
+  {
+   "type": "text",
+   "text": "GALACTIC SAGA",
+   "font": "display",
+   "panel": [
+    "front",
+    "rear"
+   ],
+   "color": "#ffd54a",
+   "stroke": {
+    "color": "#7a4a00",
+    "width": 3
+   },
+   "glow": {
+    "color": "#ffb300",
+    "radius": 8
+   },
+   "letter_spacing": 6,
+   "panel_fill": 0.75
+  }
+ ]
+}

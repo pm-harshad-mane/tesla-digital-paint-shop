@@ -1,0 +1,4 @@
+Pillow>=10.1
+numpy>=1.24
+# Optional: scipy speeds up panel detection (scipy.ndimage.label); a numpy fallback is used otherwise.
+# scipy>=1.10

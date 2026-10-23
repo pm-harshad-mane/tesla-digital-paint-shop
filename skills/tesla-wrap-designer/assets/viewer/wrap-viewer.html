@@ -1,0 +1,704 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tesla Wrap Viewer</title>
+<style>
+:root{
+  --bg:#0e1013; --panel:#161a1f; --panel2:#1d222a; --line:#2a313b; --text:#e6e9ee; --muted:#98a2b3;
+  --accent:#4cc2ff; --ok:#3ecf8e; --warn:#f5b53d; --fail:#ff5d6c; --info:#7a8699; --radius:8px;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;display:flex;flex-direction:column;min-height:100vh}
+button,select,input{font:inherit;color:inherit}
+button,select{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer}
+button:hover,select:hover{border-color:#44505f}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--line)}
+header h1{font-size:16px;margin:0;font-weight:650;letter-spacing:.2px}
+header label{color:var(--muted);font-size:12px;display:flex;gap:6px;align-items:center}
+header .sp{flex:1}
+#modelSel{min-width:260px}
+.primary{background:var(--accent);color:#04202e;border-color:var(--accent);font-weight:600}
+.primary:hover{filter:brightness(1.08);border-color:var(--accent)}
+main{flex:1;display:grid;grid-template-columns:320px 1fr;min-height:0}
+aside{background:var(--panel);border-right:1px solid var(--line);padding:12px;overflow:auto;max-height:calc(100vh - 56px)}
+section.card{margin-bottom:14px}
+h2{font-size:12px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin:0 0 8px;font-weight:600}
+#drop{border:2px dashed var(--line);border-radius:var(--radius);padding:14px;text-align:center;color:var(--muted);cursor:pointer}
+#drop.over,#tdrop.over{border-color:var(--accent);background:#10202a;color:var(--text)}
+#gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;margin-top:10px}
+.thumb{position:relative;background:#000;border:2px solid var(--line);border-radius:6px;padding:0;overflow:hidden;aspect-ratio:1;cursor:pointer}
+.thumb.sel{border-color:var(--accent)}
+.thumb canvas{width:100%;height:100%;object-fit:contain;display:block;background:repeating-conic-gradient(#2b2f36 0 25%,#1c1f24 0 50%) 0 0/12px 12px}
+.thumb .dot{position:absolute;top:4px;right:4px;width:12px;height:12px;border-radius:50%;border:2px solid #000}
+.thumb .x{position:absolute;top:2px;left:2px;background:#000a;border:0;border-radius:4px;padding:0 5px;font-size:12px;line-height:18px}
+.thumb .nm{position:absolute;bottom:0;left:0;right:0;background:#000b;font-size:10px;padding:1px 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:left}
+ul.checks{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+ul.checks li{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:start;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:7px 9px}
+.badge{font-size:10px;font-weight:700;letter-spacing:.6px;padding:2px 6px;border-radius:4px;text-transform:uppercase;min-width:42px;text-align:center;color:#06120c}
+.b-pass{background:var(--ok)} .b-warn{background:var(--warn)} .b-fail{background:var(--fail);color:#2a0409} .b-info{background:var(--info);color:#0b0e12}
+ul.checks .t{font-weight:600} ul.checks .d{color:var(--muted);font-size:12px;word-break:break-word}
+.overall{display:flex;gap:8px;align-items:center;margin-bottom:8px;font-weight:600}
+.stage-wrap{display:flex;flex-direction:column;min-width:0;min-height:0}
+.tabs{display:flex;flex-wrap:wrap;gap:4px;padding:8px 12px 0;border-bottom:1px solid var(--line);background:var(--panel)}
+.tab{border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;background:transparent;padding:8px 12px;color:var(--muted)}
+.tab[aria-selected=true]{background:var(--bg);color:var(--text);border-color:var(--line);font-weight:600}
+.toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:8px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}
+.toolbar input[type=range]{width:110px;accent-color:var(--accent)}
+.toolbar label{display:flex;gap:6px;align-items:center}
+.panes{position:relative;flex:1;min-height:420px}
+.pane{position:absolute;inset:0;display:none}
+.pane.on{display:block}
+#viewport{overflow:hidden;cursor:grab;background:#08090b;touch-action:none}
+#viewport.drag{cursor:grabbing}
+#world{position:absolute;left:0;top:0;transform-origin:0 0}
+#world canvas{position:absolute;left:0;top:0;image-rendering:auto}
+#world.pix canvas{image-rendering:pixelated}
+#checker{background:repeating-conic-gradient(#2b2f36 0 25%,#1c1f24 0 50%) 0 0/16px 16px}
+.hud{position:absolute;left:10px;bottom:10px;background:#0009;border:1px solid var(--line);border-radius:6px;padding:6px 10px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;pointer-events:none;max-width:90%}
+.hud .sw{display:inline-block;width:11px;height:11px;border:1px solid #fff6;vertical-align:-1px;margin-right:4px}
+.legend{position:absolute;right:10px;top:10px;background:#000a;border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-size:12px}
+.legend i{display:inline-block;width:11px;height:11px;margin-right:6px;vertical-align:-1px;border-radius:2px}
+#panelInfo{position:absolute;right:10px;bottom:10px;background:#0c1116ee;border:1px solid var(--accent);border-radius:6px;padding:8px 12px;font-size:12px;display:none;max-width:290px}
+#panelInfo b{color:var(--accent)}
+.scroll{overflow:auto;padding:18px}
+.tilewrap{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.tilebox{background:#101318;border:1px solid var(--line);border-radius:10px;padding:14px;text-align:center}
+.tilebox h3{margin:0 0 10px;font-size:12px;color:var(--muted);font-weight:600}
+.tilerow{display:flex;gap:14px;align-items:flex-end;justify-content:center}
+.tilerow figure{margin:0}
+.tilerow figcaption{font-size:11px;color:var(--muted);margin-top:4px}
+.tile{border-radius:10px;background:#000;display:block;border:1px solid #333}
+.vehimg{display:block;max-height:340px;max-width:100%}
+.note{color:var(--muted);font-size:12px;max-width:640px;margin-top:12px}
+#p3d{background:radial-gradient(ellipse at 50% 40%,#1b212a,#07090b);perspective:1400px;display:none;align-items:center;justify-content:center;cursor:grab;overflow:hidden;touch-action:none}
+#p3d.on{display:flex}
+#p3d.drag{cursor:grabbing}
+#plane{position:relative;transform-style:preserve-3d;box-shadow:0 30px 60px #000a;border-radius:6px;overflow:hidden}
+#plane img{display:block;width:100%;height:100%;image-rendering:auto}
+#sheen{position:absolute;inset:0;mix-blend-mode:screen;pointer-events:none}
+.badge3d{position:absolute;left:12px;top:12px;background:#000b;border:1px solid var(--warn);color:var(--warn);padding:6px 10px;border-radius:6px;font-size:12px;max-width:420px}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);text-align:center;padding:24px;pointer-events:none}
+#tmplFail{display:none;margin-bottom:12px;border:1px solid var(--warn);border-radius:var(--radius);padding:10px;background:#2a2008}
+#tmplFail p{margin:0 0 8px;font-size:12px}
+#tdrop{border:2px dashed var(--warn);border-radius:6px;padding:10px;text-align:center;cursor:pointer;font-size:12px}
+.small{font-size:12px;color:var(--muted)}
+#errlog{display:none}
+@media (max-width:1000px){
+  main{grid-template-columns:260px 1fr}
+  #modelSel{min-width:200px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Tesla Wrap Viewer</h1>
+  <label>Model
+    <select id="modelSel" aria-label="Tesla model"></select>
+  </label>
+  <span class="small" id="tmplStatus" role="status"></span>
+  <span class="sp"></span>
+  <button id="addBtn" class="primary" type="button">Add wrap PNGs</button>
+  <button id="reportBtn" type="button">Download JSON report</button>
+  <input id="fileIn" type="file" accept="image/png,.png" multiple hidden>
+  <input id="tmplIn" type="file" accept="image/png,.png" multiple hidden>
+</header>
+<main>
+  <aside>
+    <div id="tmplFail">
+      <p><b>Could not download the template</b> (offline or blocked). Load <code>template.png</code> (and optionally <code>vehicle_image.png</code>) for this model from the teslamotors/custom-wraps repo.</p>
+      <div id="tdrop" tabindex="0" role="button">Drop template.png here or click to choose</div>
+    </div>
+    <section class="card">
+      <h2>Wraps (<span id="cnt">0</span>/10)</h2>
+      <div id="drop" tabindex="0" role="button" aria-label="Drop wrap PNG files here or press Enter to choose">Drop wrap PNGs here<br><span class="small">or click / press Enter to browse</span></div>
+      <div id="gallery" role="listbox" aria-label="Loaded wraps"></div>
+    </section>
+    <section class="card">
+      <h2>Spec checks</h2>
+      <div class="overall" id="overall"></div>
+      <ul class="checks" id="checks"></ul>
+    </section>
+    <section class="card small" id="batchBox"></section>
+  </aside>
+  <div class="stage-wrap">
+    <div class="tabs" role="tablist" aria-label="Views" id="tabs">
+      <button class="tab" role="tab" data-tab="template">On template</button>
+      <button class="tab" role="tab" data-tab="surface">Car surface</button>
+      <button class="tab" role="tab" data-tab="risk">Transparency / risk map</button>
+      <button class="tab" role="tab" data-tab="tile">Paint Shop tile</button>
+      <button class="tab" role="tab" data-tab="3d">3D preview</button>
+    </div>
+    <div class="toolbar" id="toolbar">
+      <span id="tbTemplate" hidden>
+        <label><input type="checkbox" id="olOn" checked> Template outlines</label>
+        <label>Opacity <input type="range" id="olOp" min="5" max="100" value="70" aria-label="Outline opacity"></label>
+      </span>
+      <span id="tbZoom">
+        <button id="zFit" type="button">Fit</button>
+        <button id="z100" type="button">100%</button>
+        <span id="zLbl">100%</span>
+        <span>wheel = zoom, drag = pan, click = inspect panel</span>
+      </span>
+    </div>
+    <div class="panes">
+      <div class="pane on" id="viewport" tabindex="0" aria-label="Wrap canvas. Arrow keys pan, plus and minus zoom.">
+        <div id="world"><canvas id="cBase"></canvas><canvas id="cOver"></canvas><canvas id="cHl"></canvas></div>
+        <div class="hud" id="hud">Hover over the image to inspect pixels.</div>
+        <div class="legend" id="legend" hidden></div>
+        <div id="panelInfo" aria-live="polite"></div>
+      </div>
+      <div class="pane scroll" id="tilePane"></div>
+      <div class="pane" id="p3d" tabindex="0" aria-label="3D preview. Drag to rotate, arrow keys tilt.">
+        <div id="plane"><img id="planeImg" alt="Car surface UV sheet"><div id="sheen"></div></div>
+        <div class="badge3d">Flat UV sheet, not the actual car mesh (Tesla does not publish meshes). Drag to tilt, wheel to zoom, double-click to reset.</div>
+      </div>
+      <div class="empty" id="empty">Add one or more wrap PNGs to begin.</div>
+    </div>
+  </div>
+</main>
+<pre id="errlog"></pre>
+
+<script>
+"use strict";
+/* ---------- embedded registry (mirror of references/models.json) ---------- */
+const SOURCE_REF = "86c7d31454caf0f20af6f6af105f577643f13bce";
+const RAW_BASE = "https://raw.githubusercontent.com/teslamotors/custom-wraps/{ref}/{id}/{file}";
+const MODELS = [
+ {"id":"model3","name":"Model 3","years":"2017-2023","variant":"All trims (pre-Highland)","canvas":[1024,1024]},
+ {"id":"model3-2024-base","name":"Model 3","years":"2024+","variant":"Standard & Premium (Highland)","canvas":[1024,1024]},
+ {"id":"model3-2024-performance","name":"Model 3","years":"2024+","variant":"Performance (Highland)","canvas":[1024,1024]},
+ {"id":"modely","name":"Model Y","years":"2020-2024","variant":"All trims (pre-Juniper)","canvas":[1024,1024]},
+ {"id":"modely-2025-base","name":"Model Y","years":"2025+","variant":"Standard","canvas":[1024,1024]},
+ {"id":"modely-2025-premium","name":"Model Y","years":"2025+","variant":"Premium (Long Range)","canvas":[1024,1024]},
+ {"id":"modely-2025-performance","name":"Model Y","years":"2025+","variant":"Performance","canvas":[1024,1024]},
+ {"id":"modely-l","name":"Model Y L","years":"2025+","variant":"Six-seat long wheelbase","canvas":[1024,1024]},
+ {"id":"models-2021","name":"Model S","years":"2021+","variant":"Refresh","canvas":[1024,1024]},
+ {"id":"models-2025-plaid","name":"Model S","years":"2025+","variant":"Plaid","canvas":[1024,1024]},
+ {"id":"modelx-2021","name":"Model X","years":"2021+","variant":"All trims (refresh)","canvas":[1024,1024]},
+ {"id":"cybertruck","name":"Cybertruck","years":"2024+","variant":"All trims","canvas":[1024,768]}
+];
+let LIMITS = {max_bytes:1000000, filename_regex:"^[A-Za-z0-9_\\- ]+\\.png$", filename_max_chars:30, max_files_per_source:10, min_side:512, max_side:1024};
+const NEAR_BLACK_LUMA = 12, NEAR_BLACK_WARN = 0.15;
+
+/* ---------- helpers ---------- */
+const $ = id => document.getElementById(id);
+const fmt = n => n.toLocaleString("en-US");
+const pct = (a,b) => b ? (100*a/b) : 0;
+const pctS = v => (v>=10?v.toFixed(1):v>=0.01||v===0?v.toFixed(2):"<0.01")+"%";
+function logErr(e){ try{ $("errlog").textContent += String(e && e.stack || e)+"\n"; }catch(_){} }
+window.addEventListener("error", ev => logErr("ERROR "+ev.message+" @"+ev.lineno));
+window.addEventListener("unhandledrejection", ev => logErr("REJECT "+(ev.reason&&ev.reason.stack||ev.reason)));
+const luma = (r,g,b) => 0.2126*r+0.7152*g+0.0722*b;
+
+function b64ToBytes(dataUrl){
+  const s = dataUrl.slice(dataUrl.indexOf(",")+1), bin = atob(s), u = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i);
+  return u;
+}
+function loadImg(url){
+  return new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=()=>rej(new Error("image decode failed")); im.src=url; });
+}
+function readPixels(img){
+  const c=document.createElement("canvas"); c.width=img.naturalWidth; c.height=img.naturalHeight;
+  const x=c.getContext("2d",{willReadFrequently:true}); x.drawImage(img,0,0);
+  return x.getImageData(0,0,c.width,c.height);
+}
+function mkCanvas(w,h){ const c=document.createElement("canvas"); c.width=w; c.height=h; return c; }
+
+/* PNG header parse: signature + IHDR + chunk list (colour type, tRNS) */
+function parsePng(b){
+  const sig=[137,80,78,71,13,10,26,10];
+  const r={sigOk:b.length>=8 && sig.every((v,i)=>b[i]===v), colorType:null, bitDepth:null, hasTrns:false, w:0,h:0};
+  if(!r.sigOk || b.length<33) return r;
+  const dv=new DataView(b.buffer,b.byteOffset,b.byteLength);
+  r.w=dv.getUint32(16); r.h=dv.getUint32(20); r.bitDepth=b[24]; r.colorType=b[25];
+  let p=8;
+  while(p+8<=b.length){
+    const len=dv.getUint32(p), t=String.fromCharCode(b[p+4],b[p+5],b[p+6],b[p+7]);
+    if(t==="tRNS") r.hasTrns=true;
+    if(t==="IDAT"||t==="IEND") break;
+    p+=12+len;
+  }
+  return r;
+}
+
+/* ---------- state ---------- */
+const S = {
+  model:null, tpl:null, veh:null, wraps:[], sel:-1, tab:"template",
+  z:1, px:0, py:0, labels:null, hl:null, hlPanel:null, cache:{}, tplToken:0
+};
+const OUT = {on:true, op:0.7};
+
+/* ---------- model + template loading ---------- */
+function modelById(id){ return MODELS.find(m=>m.id===id); }
+function fillModelSelect(){
+  const sel=$("modelSel"); sel.innerHTML="";
+  for(const m of MODELS){
+    const o=document.createElement("option"); o.value=m.id;
+    o.textContent=`${m.name} ${m.years} - ${m.variant} [${m.canvas[0]}x${m.canvas[1]}]`;
+    sel.appendChild(o);
+  }
+}
+function setTplStatus(t){ $("tmplStatus").textContent=t; }
+
+async function prepareTemplate(tplUrl, vehUrl){
+  const im=await loadImg(tplUrl); const px=readPixels(im);
+  const w=px.width,h=px.height,d=px.data,n=w*h;
+  const inPanel=new Uint8Array(n), outline=new Uint8Array(n), light=new Uint8Array(n);
+  for(let i=0,j=0;i<n;i++,j+=4){
+    const a=d[j+3]; if(a>0) inPanel[i]=1;
+    if(a>=128){ const l=luma(d[j],d[j+1],d[j+2]); if(l<80) outline[i]=1; else if(l>=160) light[i]=1; }
+  }
+  S.tpl={w,h,data:d,inPanel,outline,light,img:im,url:tplUrl};
+  let nIn=0; for(let i=0;i<n;i++) nIn+=inPanel[i]; S.tpl.nIn=nIn;
+  S.veh=null; if(vehUrl){ try{ S.veh={img:await loadImg(vehUrl),url:vehUrl}; }catch(e){ logErr(e); } }
+  S.labels=null; S.hl=null; S.hlPanel=null; S.cache={};
+}
+
+async function selectModel(id, opts={}){
+  const m=modelById(id); if(!m) return;
+  S.model=m; $("modelSel").value=id;
+  const token=++S.tplToken;
+  $("tmplFail").style.display="none";
+  if(opts.preload){
+    try{ await prepareTemplate(opts.preload.template, opts.preload.vehicle_image); setTplStatus("Template: embedded"); }
+    catch(e){ logErr(e); setTplStatus("Embedded template failed to decode"); $("tmplFail").style.display="block"; }
+  } else {
+    S.tpl=null; S.veh=null; setTplStatus("Downloading template...");
+    refresh();
+    try{
+      const base=(f)=>RAW_BASE.replace("{ref}",SOURCE_REF).replace("{id}",id).replace("{file}",f);
+      const get=async f=>{ const r=await fetch(base(f)); if(!r.ok) throw new Error(f+" HTTP "+r.status); return URL.createObjectURL(await r.blob()); };
+      const t=await get("template.png"); let v=null; try{ v=await get("vehicle_image.png"); }catch(e){ logErr(e); }
+      if(token!==S.tplToken) return;
+      await prepareTemplate(t,v); setTplStatus("Template: GitHub @"+SOURCE_REF.slice(0,7));
+    }catch(e){
+      if(token!==S.tplToken) return;
+      logErr(e); setTplStatus("Template unavailable"); $("tmplFail").style.display="block";
+    }
+  }
+  if(token!==S.tplToken) return;
+  reanalyzeAll(); refresh(); fitView();
+}
+
+async function loadTemplateFiles(files){
+  let t=null,v=null;
+  for(const f of files){ const u=URL.createObjectURL(f); if(/vehicle/i.test(f.name)) v=u; else if(!t) t=u; }
+  if(!t) return;
+  try{ await prepareTemplate(t,v); setTplStatus("Template: loaded manually"); $("tmplFail").style.display="none"; reanalyzeAll(); refresh(); fitView(); }
+  catch(e){ logErr(e); setTplStatus("That file is not a readable PNG"); }
+}
+
+/* ---------- wraps ---------- */
+async function addWrapBytes(name, bytes){
+  if(S.wraps.length>=LIMITS.max_files_per_source+5){ return; } // hard stop at 15 to keep memory sane; check 10 below
+  const blob=new Blob([bytes],{type:"image/png"}); const url=URL.createObjectURL(blob);
+  const w={name,bytes:bytes.length,head:parsePng(bytes),url,img:null,px:null,an:null,error:null};
+  try{ w.img=await loadImg(url); w.px=readPixels(w.img); }
+  catch(e){ w.error="Browser could not decode this file as an image"; }
+  S.wraps.push(w); analyze(w);
+}
+async function addFiles(files){
+  for(const f of files){
+    const buf=new Uint8Array(await f.arrayBuffer());
+    await addWrapBytes(f.name, buf);
+  }
+  if(S.sel<0 && S.wraps.length) S.sel=0;
+  refresh();
+}
+
+/* analysis: mirrors the Python validator */
+function analyze(w){
+  const an={tpl:!!S.tpl, dimsOk:null, transparent:0, total:0, inPanelTransparent:0, panelPx:0, nearBlack:0};
+  if(w.px){
+    const W=w.px.width,H=w.px.height,d=w.px.data,n=W*H; an.total=n;
+    const T=S.tpl, same=T&&T.w===W&&T.h===H; an.dimsOk=T?same:null;
+    for(let i=0,j=0;i<n;i++,j+=4){
+      const tr=d[j+3]<255; // any non-opaque pixel; fully transparent counted separately below
+      if(d[j+3]===0) an.transparent++;
+      if(same && T.inPanel[i]){
+        an.panelPx++;
+        if(d[j+3]===0) an.inPanelTransparent++;
+        else if(luma(d[j],d[j+1],d[j+2])<NEAR_BLACK_LUMA) an.nearBlack++;
+      }
+    }
+    an.semi=0; for(let j=3;j<d.length;j+=4){ if(d[j]>0&&d[j]<255) an.semi++; }
+  }
+  w.an=an; w.cache={};
+}
+function reanalyzeAll(){ for(const w of S.wraps) analyze(w); }
+
+function checksFor(w){
+  const L=[], add=(s,t,d)=>L.push({status:s,title:t,detail:d});
+  const an=w.an, T=S.tpl;
+  add(w.head.sigOk?"pass":"fail","PNG signature", w.head.sigOk?"First 8 bytes match the PNG signature.":"File does not start with the PNG signature; Tesla will reject it even if the name ends in .png.");
+  if(w.error){ add("fail","Decodes as image", w.error); return L; }
+  if(T){
+    const ok=an.dimsOk; add(ok?"pass":"fail","Dimensions", `${w.px.width}x${w.px.height}; template canvas is ${T.w}x${T.h}.`+(ok?"":" Must match exactly."));
+  } else add("warn","Dimensions", `${w.px.width}x${w.px.height}; no template loaded to compare against.`);
+  add(w.bytes<=LIMITS.max_bytes?"pass":"fail","File size", `${fmt(w.bytes)} bytes (limit ${fmt(LIMITS.max_bytes)}).`);
+  const re=new RegExp(LIMITS.filename_regex), nameOk=re.test(w.name), lenOk=w.name.length<=LIMITS.filename_max_chars;
+  add(nameOk&&lenOk?"pass":"fail","Filename", `"${w.name}" (${w.name.length}/${LIMITS.filename_max_chars} chars). `+(nameOk?"":"Only letters, digits, underscore, hyphen, space allowed. ")+(lenOk?"":"Too long."));
+  const tp=pct(an.transparent,an.total);
+  add(an.transparent===0?"pass":"fail","Transparent pixels", an.transparent===0?"None. Good: transparent areas render black on the car.":`${fmt(an.transparent)} fully transparent pixels (${pctS(tp)}). They render black on the car.`);
+  if(an.semi>0) add("warn","Semi-transparent pixels", `${fmt(an.semi)} partially transparent pixels; flatten the image.`);
+  const hasAlpha=w.head.colorType===4||w.head.colorType===6||w.head.hasTrns;
+  add(hasAlpha?(an.transparent===0?"warn":"info"):"pass","Alpha channel", hasAlpha?`PNG colour type ${w.head.colorType}${w.head.hasTrns?" + tRNS":""} carries alpha. Save as RGB to be safe.`:`PNG colour type ${w.head.colorType} has no alpha channel.`);
+  if(T && an.dimsOk){
+    const ip=pct(an.inPanelTransparent,an.panelPx);
+    add(an.inPanelTransparent===0?"pass":"fail","Transparent inside panels", an.inPanelTransparent===0?"No transparent pixels where the template is paintable.":`${fmt(an.inPanelTransparent)} transparent pixels inside panels (${pctS(ip)} of ${fmt(an.panelPx)} panel px). These will be black on the car.`);
+    const nb=an.nearBlack/Math.max(1,an.panelPx);
+    add(nb>NEAR_BLACK_WARN?"warn":"pass","Near-black in panels", `${pctS(nb*100)} of panel pixels have luma < ${NEAR_BLACK_LUMA} (${fmt(an.nearBlack)} px).`+(nb>NEAR_BLACK_WARN?" Looks like unpainted/black areas; confirm this is intended.":""));
+  } else {
+    add("warn","Panel checks", T?"Skipped: wrap size differs from template.":"Skipped: template not loaded.");
+  }
+  const cnt=S.wraps.length;
+  add(cnt<=LIMITS.max_files_per_source?"pass":"fail","Batch count", `${cnt} wrap(s) loaded (max ${LIMITS.max_files_per_source}).`);
+  return L;
+}
+function overallStatus(L){ return L.some(c=>c.status==="fail")?"fail":L.some(c=>c.status==="warn")?"warn":"pass"; }
+const STAT_TXT={pass:"PASS",warn:"WARN",fail:"FAIL",info:"INFO"};
+
+/* ---------- rendering of views into canvases ---------- */
+function canvasSize(){ return S.tpl?[S.tpl.w,S.tpl.h]:(S.model?S.model.canvas:[1024,1024]); }
+function drawWrapScaled(ctx,w,W,H){ ctx.imageSmoothingEnabled=false; ctx.drawImage(w.img,0,0,W,H); }
+
+function surfaceCanvas(w){ // wrap masked to template panels over charcoal
+  if(w.cache.surface) return w.cache.surface;
+  const [W,H]=canvasSize(), c=mkCanvas(W,H), x=c.getContext("2d");
+  x.fillStyle="#2b2e33"; x.fillRect(0,0,W,H);
+  if(!S.tpl||!w.img){ x.drawImage(w.img,0,0,W,H); return w.cache.surface=c; }
+  const tmp=mkCanvas(W,H), tx=tmp.getContext("2d",{willReadFrequently:true});
+  tx.fillStyle="#000"; tx.fillRect(0,0,W,H); drawWrapScaled(tx,w,W,H); // transparent renders black on the car
+  const id=tx.getImageData(0,0,W,H), d=id.data, T=S.tpl.data;
+  for(let i=0,j=0;i<W*H;i++,j+=4) d[j+3]=T[j+3]; // mask by template alpha
+  tx.putImageData(id,0,0); x.drawImage(tmp,0,0);
+  return w.cache.surface=c;
+}
+function checkerFill(x,W,H){
+  x.fillStyle="#1c1f24"; x.fillRect(0,0,W,H); x.fillStyle="#2b2f36";
+  for(let y=0;y<H;y+=16) for(let xx=((y/16)&1)*16;xx<W;xx+=32) x.fillRect(xx,y,16,16);
+}
+function baseTemplate(w){
+  const [W,H]=canvasSize(), c=mkCanvas(W,H), x=c.getContext("2d");
+  checkerFill(x,W,H); if(w.img) drawWrapScaled(x,w,W,H); return c;
+}
+function riskCanvas(w){
+  if(w.cache.risk) return w.cache.risk;
+  const [W,H]=canvasSize(), c=mkCanvas(W,H), x=c.getContext("2d",{willReadFrequently:true});
+  x.fillStyle="#000"; x.fillRect(0,0,W,H);
+  const tmp=mkCanvas(W,H), tx=tmp.getContext("2d",{willReadFrequently:true}); tx.imageSmoothingEnabled=false; tx.drawImage(w.img,0,0,W,H);
+  const s=tx.getImageData(0,0,W,H).data, out=x.createImageData(W,H), o=out.data, T=S.tpl;
+  for(let i=0,j=0;i<W*H;i++,j+=4){
+    const a=s[j+3], inP=T?T.inPanel[i]:0;
+    if(a===0){ o[j]=255;o[j+1]=0;o[j+2]=230;o[j+3]=255; }
+    else if(inP && luma(s[j],s[j+1],s[j+2])<NEAR_BLACK_LUMA){ o[j]=255;o[j+1]=140;o[j+2]=0;o[j+3]=255; }
+    else { o[j]=s[j]*0.3;o[j+1]=s[j+1]*0.3;o[j+2]=s[j+2]*0.3;o[j+3]=255; }
+  }
+  x.putImageData(out,0,0); return w.cache.risk=c;
+}
+function outlineCanvas(){
+  if(S.cache.outline) return S.cache.outline;
+  const T=S.tpl, c=mkCanvas(T.w,T.h), x=c.getContext("2d"), id=x.createImageData(T.w,T.h), o=id.data;
+  for(let i=0,j=0;i<T.w*T.h;i++,j+=4) if(T.outline[i]){ o[j]=255;o[j+1]=255;o[j+2]=255;o[j+3]=255; }
+  x.putImageData(id,0,0); return S.cache.outline=c;
+}
+
+function curWrap(){ return S.wraps[S.sel]||null; }
+
+function renderMain(){
+  const w=curWrap(); const base=$("cBase"), over=$("cOver"), hl=$("cHl");
+  const [W,H]=canvasSize();
+  for(const c of [base,over,hl]){ c.width=W; c.height=H; }
+  $("world").style.width=W+"px"; $("world").style.height=H+"px";
+  const bx=base.getContext("2d"); bx.clearRect(0,0,W,H);
+  over.getContext("2d").clearRect(0,0,W,H);
+  const lg=$("legend"); lg.hidden=true;
+  if(!w||!w.img){ return; }
+  if(S.tab==="template"){
+    bx.drawImage(baseTemplate(w),0,0);
+    if(S.tpl && OUT.on){ const ox=over.getContext("2d"); ox.globalAlpha=OUT.op; ox.drawImage(outlineCanvas(),0,0); ox.globalAlpha=1; }
+  } else if(S.tab==="surface"){
+    bx.drawImage(surfaceCanvas(w),0,0);
+  } else if(S.tab==="risk"){
+    bx.drawImage(riskCanvas(w),0,0);
+    lg.hidden=false;
+    lg.innerHTML='<div><i style="background:#ff00e6"></i>Transparent (renders black)</div><div><i style="background:#ff8c00"></i>Near-black in panels (luma &lt; 12)</div><div><i style="background:#444"></i>OK (dimmed)</div>';
+  }
+  drawHighlight();
+}
+
+function drawHighlight(){
+  const hl=$("cHl"), x=hl.getContext("2d"), T=S.tpl; x.clearRect(0,0,hl.width,hl.height);
+  if(!S.hl||!T||hl.width!==T.w) return;
+  const id=x.createImageData(T.w,T.h), o=id.data, L=S.labels, tgt=S.hlPanel;
+  for(let i=0,j=0;i<T.w*T.h;i++,j+=4){ if(L[i]===tgt){ o[j]=76;o[j+1]=194;o[j+2]=255;o[j+3]=110; } }
+  x.putImageData(id,0,0);
+}
+
+/* tile + 3d panes */
+function renderTile(){
+  const pane=$("tilePane"), w=curWrap(); pane.innerHTML="";
+  if(!w||!w.img) return;
+  const wrapEl=document.createElement("div"); wrapEl.className="tilewrap"; pane.appendChild(wrapEl);
+  const src=S.tpl?surfaceCanvas(w):baseTemplate(w);
+  const box=document.createElement("div"); box.className="tilebox";
+  box.innerHTML="<h3>Your wrap as a Paint Shop thumbnail (UI sizes are approximate)</h3>";
+  const row=document.createElement("div"); row.className="tilerow"; box.appendChild(row);
+  for(const s of [64,112,176]){
+    const f=document.createElement("figure"); const c=mkCanvas(s,Math.round(s*src.height/src.width));
+    const x=c.getContext("2d"); x.imageSmoothingQuality="high"; x.drawImage(w.img,0,0,c.width,c.height);
+    c.className="tile"; f.appendChild(c); const cap=document.createElement("figcaption"); cap.textContent=s+" px (raw wrap)"; f.appendChild(cap); row.appendChild(f);
+  }
+  wrapEl.appendChild(box);
+  const box2=document.createElement("div"); box2.className="tilebox";
+  box2.innerHTML="<h3>As it lands on the car (masked to panels)</h3>";
+  const row2=document.createElement("div"); row2.className="tilerow"; box2.appendChild(row2);
+  for(const s of [112,176]){
+    const f=document.createElement("figure"); const c=mkCanvas(s,Math.round(s*src.height/src.width));
+    const x=c.getContext("2d"); x.imageSmoothingQuality="high"; x.drawImage(src,0,0,c.width,c.height);
+    c.className="tile"; f.appendChild(c); const cap=document.createElement("figcaption"); cap.textContent=s+" px"; f.appendChild(cap); row2.appendChild(f);
+  }
+  wrapEl.appendChild(box2);
+  const box3=document.createElement("div"); box3.className="tilebox";
+  box3.innerHTML="<h3>vehicle_image.png (Tesla reference of the car)</h3>";
+  if(S.veh){ const im=document.createElement("img"); im.src=S.veh.url; im.className="vehimg"; im.alt="Tesla vehicle reference image"; box3.appendChild(im); }
+  else box3.innerHTML+='<div class="small">Not available (template loaded without vehicle_image).</div>';
+  wrapEl.appendChild(box3);
+  const n=document.createElement("p"); n.className="note";
+  n.textContent="Paint Shop shows the wrap as a small flat thumbnail next to the car render. Check that the design still reads at small size: fine detail and low-contrast text disappear first.";
+  pane.appendChild(n);
+}
+const R3={rx:-18,ry:24,zoom:1};
+function render3d(){
+  const w=curWrap(); if(!w||!w.img) return;
+  const [W,H]=canvasSize(); const src=S.tpl?surfaceCanvas(w):baseTemplate(w);
+  $("planeImg").src=src.toDataURL("image/png");
+  const box=$("p3d").getBoundingClientRect(); const base=Math.min(box.width*0.7, box.height*0.78, 760)||500;
+  const pl=$("plane"); pl.style.width=base+"px"; pl.style.height=(base*H/W)+"px";
+  apply3d();
+}
+function apply3d(){
+  const pl=$("plane"); pl.style.transform=`scale(${R3.zoom}) rotateX(${R3.rx}deg) rotateY(${R3.ry}deg)`;
+  const gx=50+R3.ry*1.2, gy=50-R3.rx*1.2;
+  $("sheen").style.background=`radial-gradient(circle at ${gx}% ${gy}%, rgba(255,255,255,.38), rgba(255,255,255,.08) 35%, rgba(255,255,255,0) 60%), linear-gradient(${110+R3.ry}deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.12) 50%, rgba(255,255,255,0) 60%)`;
+}
+
+/* ---------- gallery / checks ---------- */
+function refresh(){
+  $("cnt").textContent=S.wraps.length;
+  $("empty").style.display=S.wraps.length?"none":"flex";
+  renderGallery(); renderChecks(); renderView();
+}
+function renderGallery(){
+  const g=$("gallery"); g.innerHTML="";
+  S.wraps.forEach((w,i)=>{
+    const st=w.error?"fail":overallStatus(checksFor(w));
+    const b=document.createElement("div"); b.className="thumb"+(i===S.sel?" sel":""); b.tabIndex=0; b.setAttribute("role","option"); b.setAttribute("aria-selected",i===S.sel);
+    b.title=w.name; const c=mkCanvas(96,96); const x=c.getContext("2d"); x.imageSmoothingQuality="high";
+    if(w.img){ const r=Math.min(96/w.img.naturalWidth,96/w.img.naturalHeight); const tw=w.img.naturalWidth*r,th=w.img.naturalHeight*r; x.drawImage(w.img,(96-tw)/2,(96-th)/2,tw,th); }
+    b.appendChild(c);
+    const dot=document.createElement("span"); dot.className="dot"; dot.style.background=`var(--${st==="pass"?"ok":st})`; dot.title=STAT_TXT[st]; b.appendChild(dot);
+    const rm=document.createElement("button"); rm.className="x"; rm.type="button"; rm.textContent="x"; rm.setAttribute("aria-label","Remove "+w.name);
+    rm.onclick=e=>{ e.stopPropagation(); removeWrap(i); }; b.appendChild(rm);
+    const nm=document.createElement("span"); nm.className="nm"; nm.textContent=w.name; b.appendChild(nm);
+    const pick=()=>{ S.sel=i; S.hl=null; refresh(); };
+    b.onclick=pick; b.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); } };
+    g.appendChild(b);
+  });
+}
+function removeWrap(i){ const w=S.wraps[i]; if(w) URL.revokeObjectURL(w.url); S.wraps.splice(i,1); S.sel=Math.min(S.sel,S.wraps.length-1); if(S.sel<0&&S.wraps.length) S.sel=0; refresh(); }
+function renderChecks(){
+  const ul=$("checks"), ov=$("overall"); ul.innerHTML="";
+  const w=curWrap();
+  if(!w){ ov.textContent="No wrap selected."; $("batchBox").textContent=""; return; }
+  const L=checksFor(w), st=overallStatus(L);
+  ov.innerHTML=`<span class="badge b-${st}">${STAT_TXT[st]}</span><span>${w.name.replace(/[<&]/g,"")}</span>`;
+  for(const c of L){
+    const li=document.createElement("li");
+    li.innerHTML=`<span class="badge b-${c.status}">${STAT_TXT[c.status]}</span><div><div class="t"></div><div class="d"></div></div>`;
+    li.querySelector(".t").textContent=c.title; li.querySelector(".d").textContent=c.detail; ul.appendChild(li);
+  }
+  const bad=S.wraps.filter(x=>overallStatus(checksFor(x))==="fail").length;
+  $("batchBox").textContent=`${S.wraps.length} wrap(s) loaded, ${bad} failing. Limit is ${LIMITS.max_files_per_source} per USB Wraps/ folder or mobile upload.`;
+}
+
+/* ---------- views / tabs ---------- */
+function setTab(t){
+  S.tab=t; S.hl=null; $("panelInfo").style.display="none";
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===t));
+  renderView();
+  try{ history.replaceState(null,"","#tab="+t); }catch(_){}
+}
+function renderView(){
+  const t=S.tab, canv=(t==="template"||t==="surface"||t==="risk");
+  $("viewport").classList.toggle("on",canv);
+  $("tilePane").classList.toggle("on",t==="tile");
+  $("p3d").classList.toggle("on",t==="3d");
+  $("tbTemplate").hidden=t!=="template"; $("tbZoom").hidden=!canv;
+  if(canv){ renderMain(); applyView(); }
+  else if(t==="tile") renderTile();
+  else if(t==="3d") render3d();
+}
+function fitView(){
+  const vp=$("viewport").getBoundingClientRect(), [W,H]=canvasSize();
+  S.z=Math.min(vp.width/W, vp.height/H)*0.96||1; S.px=(vp.width-W*S.z)/2; S.py=(vp.height-H*S.z)/2; applyView();
+}
+function applyView(){
+  const wd=$("world"); wd.style.transform=`translate(${S.px}px,${S.py}px) scale(${S.z})`;
+  wd.classList.toggle("pix",S.z>=3); $("zLbl").textContent=Math.round(S.z*100)+"%";
+}
+function zoomAt(cx,cy,f){
+  const nz=Math.max(0.1,Math.min(40,S.z*f)), k=nz/S.z; S.px=cx-(cx-S.px)*k; S.py=cy-(cy-S.py)*k; S.z=nz; applyView();
+}
+function pixelAt(ev){
+  const r=$("viewport").getBoundingClientRect(), [W,H]=canvasSize();
+  const x=Math.floor((ev.clientX-r.left-S.px)/S.z), y=Math.floor((ev.clientY-r.top-S.py)/S.z);
+  return (x>=0&&y>=0&&x<W&&y<H)?[x,y]:null;
+}
+function onHover(ev){
+  const w=curWrap(), hud=$("hud"), p=pixelAt(ev);
+  if(!w||!p){ hud.textContent="Hover over the image to inspect pixels."; return; }
+  const [x,y]=p, [W,H]=canvasSize();
+  let wx=x,wy=y; if(w.px&&(w.px.width!==W||w.px.height!==H)){ wx=Math.floor(x*w.px.width/W); wy=Math.floor(y*w.px.height/H); }
+  const j=(wy*w.px.width+wx)*4, d=w.px.data, i=y*W+x;
+  const rgba=`${d[j]},${d[j+1]},${d[j+2]},${d[j+3]}`;
+  let panel="no template";
+  if(S.tpl){ panel=S.tpl.inPanel[i]?"inside panel area":"outside panels"; if(S.labels&&S.labels[i]>0) panel=`panel #${S.labels[i]}`; }
+  hud.innerHTML=`x=${x} y=${y} &nbsp; RGBA(${rgba}) <span class="sw" style="background:rgba(${d[j]},${d[j+1]},${d[j+2]},${d[j+3]/255})"></span> #${[d[j],d[j+1],d[j+2]].map(v=>v.toString(16).padStart(2,"0")).join("")} &nbsp; ${panel}`;
+}
+
+/* panel labelling: lazy flood fill (4-connectivity) of opaque light template pixels */
+function ensureLabels(){
+  if(S.labels) return S.labels;
+  const T=S.tpl, n=T.w*T.h, L=new Int32Array(n), stack=new Int32Array(n); let id=0;
+  S.panelAreas=[0];
+  for(let s=0;s<n;s++){
+    if(!T.light[s]||L[s]) continue;
+    id++; let sp=0,area=0; stack[sp++]=s; L[s]=id;
+    while(sp){ const p=stack[--sp]; area++; const x=p%T.w;
+      if(x>0&&T.light[p-1]&&!L[p-1]){L[p-1]=id;stack[sp++]=p-1;}
+      if(x<T.w-1&&T.light[p+1]&&!L[p+1]){L[p+1]=id;stack[sp++]=p+1;}
+      if(p>=T.w&&T.light[p-T.w]&&!L[p-T.w]){L[p-T.w]=id;stack[sp++]=p-T.w;}
+      if(p<n-T.w&&T.light[p+T.w]&&!L[p+T.w]){L[p+T.w]=id;stack[sp++]=p+T.w;}
+    }
+    S.panelAreas.push(area);
+  }
+  return S.labels=L;
+}
+function onPanelClick(ev){
+  const w=curWrap(), p=pixelAt(ev), info=$("panelInfo");
+  if(!w||!p||!S.tpl){ return; }
+  const L=ensureLabels(), [x,y]=p, T=S.tpl, i=y*T.w+x;
+  let tgt=L[i];
+  if(!tgt){ // search small neighbourhood for nearest panel
+    outer: for(let r=1;r<=4;r++) for(let dy=-r;dy<=r;dy++) for(let dx=-r;dx<=r;dx++){ const xx=x+dx,yy=y+dy; if(xx>=0&&yy>=0&&xx<T.w&&yy<T.h&&L[yy*T.w+xx]){ tgt=L[yy*T.w+xx]; break outer; } }
+  }
+  if(!tgt){ S.hl=null; drawHighlight(); info.style.display="block"; info.textContent="Not on a panel (outline, background or tiny region)."; return; }
+  let area=0,tr=0,nb=0; const W=T.w,H=T.h;
+  const same=w.px&&w.px.width===W&&w.px.height===H, d=w.px&&w.px.data;
+  for(let k=0,j=0;k<W*H;k++,j+=4){ if(L[k]!==tgt) continue; area++; if(same){ if(d[j+3]===0) tr++; else if(luma(d[j],d[j+1],d[j+2])<NEAR_BLACK_LUMA) nb++; } }
+  S.hl=true; S.hlPanel=tgt; drawHighlight();
+  info.style.display="block";
+  info.innerHTML=`<b>Panel #${tgt}</b><br>Area: ${fmt(area)} px (${pctS(pct(area,W*H))} of canvas)<br>`+(same?`Transparent: ${fmt(tr)} px (${pctS(pct(tr,area))})<br>Near-black: ${fmt(nb)} px (${pctS(pct(nb,area))})`:"Wrap size differs from template; per-panel stats unavailable.");
+}
+
+/* ---------- report ---------- */
+function buildReport(){
+  return {
+    tool:"tesla-wrap-viewer", generated:new Date().toISOString(),
+    model:S.model&&{id:S.model.id,name:S.model.name,years:S.model.years,variant:S.model.variant,canvas:S.model.canvas},
+    template:S.tpl?{width:S.tpl.w,height:S.tpl.h,source_ref:SOURCE_REF,panel_pixels:S.tpl.nIn}:null,
+    limits:LIMITS, batch_count:S.wraps.length, batch_ok:S.wraps.length<=LIMITS.max_files_per_source,
+    wraps:S.wraps.map(w=>{ const L=checksFor(w); return {
+      name:w.name, bytes:w.bytes, width:w.px?w.px.width:null, height:w.px?w.px.height:null, overall:overallStatus(L),
+      stats:{transparent_pixels:w.an.transparent,total_pixels:w.an.total,transparent_pct:+pct(w.an.transparent,w.an.total).toFixed(4),
+        semi_transparent_pixels:w.an.semi||0,
+        panel_pixels:w.an.panelPx,transparent_in_panels:w.an.inPanelTransparent,near_black_in_panels:w.an.nearBlack,
+        near_black_pct_of_panels:+pct(w.an.nearBlack,w.an.panelPx).toFixed(4)},
+      checks:L }; })
+  };
+}
+function downloadReport(){
+  const blob=new Blob([JSON.stringify(buildReport(),null,2)],{type:"application/json"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="wrap-validation-report.json"; document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* ---------- wiring ---------- */
+function wireDrop(el, handler, input){
+  ["dragenter","dragover"].forEach(e=>el.addEventListener(e,ev=>{ ev.preventDefault(); el.classList.add("over"); }));
+  ["dragleave","drop"].forEach(e=>el.addEventListener(e,ev=>{ ev.preventDefault(); el.classList.remove("over"); }));
+  el.addEventListener("drop",ev=>{ const f=[...ev.dataTransfer.files]; if(f.length) handler(f); });
+  el.addEventListener("click",()=>input.click());
+  el.addEventListener("keydown",ev=>{ if(ev.key==="Enter"||ev.key===" "){ ev.preventDefault(); input.click(); } });
+}
+function init(){
+  fillModelSelect();
+  $("modelSel").onchange=e=>selectModel(e.target.value);
+  $("addBtn").onclick=()=>$("fileIn").click();
+  $("fileIn").onchange=e=>{ addFiles([...e.target.files]); e.target.value=""; };
+  $("tmplIn").onchange=e=>{ loadTemplateFiles([...e.target.files]); e.target.value=""; };
+  wireDrop($("drop"),addFiles,$("fileIn")); wireDrop($("tdrop"),loadTemplateFiles,$("tmplIn"));
+  document.addEventListener("dragover",e=>e.preventDefault()); document.addEventListener("drop",e=>{ if(!e.target.closest||!e.target.closest("#drop,#tdrop")){ e.preventDefault(); const f=[...e.dataTransfer.files].filter(x=>/\.png$/i.test(x.name)); if(f.length) addFiles(f); } });
+  $("reportBtn").onclick=downloadReport;
+  const tabs=[...document.querySelectorAll(".tab")];
+  tabs.forEach((b,i)=>{ b.onclick=()=>setTab(b.dataset.tab); b.tabIndex=0;
+    b.onkeydown=e=>{ if(e.key==="ArrowRight"||e.key==="ArrowLeft"){ const n=tabs[(i+(e.key==="ArrowRight"?1:tabs.length-1))%tabs.length]; n.focus(); setTab(n.dataset.tab); } }; });
+  $("olOn").onchange=e=>{ OUT.on=e.target.checked; renderMain(); };
+  $("olOp").oninput=e=>{ OUT.op=e.target.value/100; renderMain(); };
+  $("zFit").onclick=fitView; $("z100").onclick=()=>{ const r=$("viewport").getBoundingClientRect(),[W,H]=canvasSize(); S.z=1; S.px=(r.width-W)/2; S.py=(r.height-H)/2; applyView(); };
+
+  const vp=$("viewport"); let drag=null, moved=0;
+  vp.addEventListener("wheel",e=>{ e.preventDefault(); const r=vp.getBoundingClientRect(); zoomAt(e.clientX-r.left,e.clientY-r.top,e.deltaY<0?1.15:1/1.15); },{passive:false});
+  vp.addEventListener("pointerdown",e=>{ drag={x:e.clientX,y:e.clientY,px:S.px,py:S.py}; moved=0; vp.setPointerCapture(e.pointerId); vp.classList.add("drag"); });
+  vp.addEventListener("pointermove",e=>{ if(drag){ const dx=e.clientX-drag.x,dy=e.clientY-drag.y; moved=Math.max(moved,Math.abs(dx)+Math.abs(dy)); S.px=drag.px+dx; S.py=drag.py+dy; applyView(); } onHover(e); });
+  vp.addEventListener("pointerup",e=>{ if(drag&&moved<4) onPanelClick(e); drag=null; vp.classList.remove("drag"); });
+  vp.addEventListener("keydown",e=>{ const s=40; const r=vp.getBoundingClientRect();
+    if(e.key==="ArrowLeft") S.px+=s; else if(e.key==="ArrowRight") S.px-=s; else if(e.key==="ArrowUp") S.py+=s; else if(e.key==="ArrowDown") S.py-=s;
+    else if(e.key==="+"||e.key==="=") zoomAt(r.width/2,r.height/2,1.25); else if(e.key==="-") zoomAt(r.width/2,r.height/2,0.8); else if(e.key==="0") fitView(); else return;
+    e.preventDefault(); applyView(); });
+
+  const p3=$("p3d"); let d3=null;
+  p3.addEventListener("pointerdown",e=>{ d3={x:e.clientX,y:e.clientY,rx:R3.rx,ry:R3.ry}; p3.setPointerCapture(e.pointerId); p3.classList.add("drag"); });
+  p3.addEventListener("pointermove",e=>{ if(!d3) return; R3.ry=d3.ry+(e.clientX-d3.x)*0.3; R3.rx=Math.max(-80,Math.min(80,d3.rx-(e.clientY-d3.y)*0.3)); apply3d(); });
+  p3.addEventListener("pointerup",()=>{ d3=null; p3.classList.remove("drag"); });
+  p3.addEventListener("wheel",e=>{ e.preventDefault(); R3.zoom=Math.max(0.4,Math.min(2.5,R3.zoom*(e.deltaY<0?1.08:1/1.08))); apply3d(); },{passive:false});
+  p3.addEventListener("dblclick",()=>{ R3.rx=-18;R3.ry=24;R3.zoom=1; apply3d(); });
+  p3.addEventListener("keydown",e=>{ const k={ArrowLeft:["ry",-6],ArrowRight:["ry",6],ArrowUp:["rx",6],ArrowDown:["rx",-6]}[e.key]; if(k){ R3[k[0]]+=k[1]; apply3d(); e.preventDefault(); } });
+  window.addEventListener("resize",()=>{ if(S.tab==="3d") render3d(); });
+  boot();
+}
+
+async function boot(){
+  const hash=new URLSearchParams(location.hash.slice(1));
+  const P=window.__WRAP_PRELOAD__;
+  let startModel=hash.get("model")||"model3";
+  if(P){
+    if(Array.isArray(P.models)&&P.models.length){ MODELS.length=0; P.models.forEach(m=>MODELS.push(m)); fillModelSelect(); }
+    if(P.limits) LIMITS=Object.assign(LIMITS,P.limits);
+    startModel=P.model||startModel;
+  }
+  const tab=hash.get("tab"); if(["template","surface","risk","tile","3d"].includes(tab)) S.tab=tab;
+  document.querySelectorAll(".tab").forEach(b=>b.setAttribute("aria-selected", b.dataset.tab===S.tab));
+  try{
+    if(P&&P.template){
+      await selectModel(startModel,{preload:P});
+      for(const w of (P.wraps||[])) await addWrapBytes(w.name, b64ToBytes(w.data));
+      if(P.wraps&&P.wraps.length) S.sel=Math.min(+hash.get("wrap")||0,S.wraps.length-1);
+      refresh(); fitView();
+    } else {
+      $("modelSel").value=startModel; await selectModel(startModel);
+    }
+  }catch(e){ logErr(e); }
+  document.title="Tesla Wrap Viewer"; document.documentElement.setAttribute("data-ready","1");
+  if(hash.get("click")){ const [cx,cy]=hash.get("click").split(",").map(Number); setTimeout(()=>{ try{
+      const r=$("viewport").getBoundingClientRect(); onPanelClick({clientX:r.left+S.px+cx*S.z,clientY:r.top+S.py+cy*S.z}); }catch(e){ logErr(e); } },50); }
+}
+window.addEventListener("DOMContentLoaded",()=>{ try{ init(); }catch(e){ logErr(e); } });
+</script>
+</body>
+</html>
