@@ -1,0 +1,28 @@
+{
+  "source_repo": "https://github.com/teslamotors/custom-wraps",
+  "source_ref": "86c7d31454caf0f20af6f6af105f577643f13bce",
+  "raw_base": "https://raw.githubusercontent.com/teslamotors/custom-wraps/{ref}/{id}/{file}",
+  "models": [
+    {"id": "model3",                  "name": "Model 3",               "years": "2017-2023", "variant": "All trims (pre-Highland)",           "canvas": [1024, 1024], "identify": "Original Model 3 with fog lights / older front bumper; not the 2024+ 'Highland' refresh."},
+    {"id": "model3-2024-base",        "name": "Model 3",               "years": "2024+",     "variant": "Standard & Premium (Highland)",      "canvas": [1024, 1024], "identify": "Highland refresh: slim headlights, no fog lights, ambient light bar inside. Any non-Performance trim."},
+    {"id": "model3-2024-performance", "name": "Model 3",               "years": "2024+",     "variant": "Performance (Highland)",             "canvas": [1024, 1024], "identify": "2024+ Model 3 Performance: aggressive front bumper with vents, carbon rear spoiler."},
+    {"id": "modely",                  "name": "Model Y",               "years": "2020-2024", "variant": "All trims (pre-Juniper)",            "canvas": [1024, 1024], "identify": "Original Model Y with separate headlights; no front light bar."},
+    {"id": "modely-2025-base",        "name": "Model Y",               "years": "2025+",     "variant": "Standard",                           "canvas": [1024, 1024], "identify": "2025+ 'Juniper'-generation Model Y in the lower-cost Standard trim."},
+    {"id": "modely-2025-premium",     "name": "Model Y",               "years": "2025+",     "variant": "Premium (Long Range)",               "canvas": [1024, 1024], "identify": "2025+ 'Juniper' Model Y with full-width front light bar, Premium / Long Range trims."},
+    {"id": "modely-2025-performance", "name": "Model Y",               "years": "2025+",     "variant": "Performance",                        "canvas": [1024, 1024], "identify": "2025+ Model Y Performance: sport bumpers, carbon spoiler."},
+    {"id": "modely-l",                "name": "Model Y L",             "years": "2025+",     "variant": "Six-seat long wheelbase",            "canvas": [1024, 1024], "identify": "Extended-wheelbase, 3-row/6-seat Model Y L."},
+    {"id": "models-2021",             "name": "Model S",               "years": "2021+",     "variant": "Refresh (non-Plaid 2025 likely uses this - verify in Toybox)", "canvas": [1024, 1024], "identify": "Model S with yoke/landscape screen refresh (2021+). Pre-2021 Model S is NOT supported by Tesla."},
+    {"id": "models-2025-plaid",       "name": "Model S",               "years": "2025+",     "variant": "Plaid",                              "canvas": [1024, 1024], "identify": "2025+ Model S Plaid with updated front splitter/aero."},
+    {"id": "modelx-2021",             "name": "Model X",               "years": "2021+",     "variant": "All trims (refresh)",                "canvas": [1024, 1024], "identify": "Model X refresh (2021+). Pre-2021 Model X is NOT supported by Tesla."},
+    {"id": "cybertruck",              "name": "Cybertruck",            "years": "2024+",     "variant": "All trims",                          "canvas": [1024, 768],  "identify": "Cybertruck. NOTE: template canvas is 1024x768 (not square)."}
+  ],
+  "limits": {
+    "format": "PNG",
+    "min_side": 512,
+    "max_side": 1024,
+    "max_bytes": 1000000,
+    "filename_regex": "^[A-Za-z0-9_\\- ]+\\.png$",
+    "filename_max_chars": 30,
+    "max_files_per_source": 10
+  }
+}

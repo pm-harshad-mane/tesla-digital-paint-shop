@@ -1,0 +1,117 @@
+{
+ "name": "Birthday_Bash",
+ "model": "model3-2024-base",
+ "seed": 7,
+ "base_color": "#5b1fa8",
+ "layers": [
+  {
+   "type": "gradient",
+   "kind": "linear",
+   "angle": 70,
+   "stops": [
+    [
+     "#6a1fd0",
+     0
+    ],
+    [
+     "#e61e9b",
+     0.55
+    ],
+    [
+     "#ff8a2b",
+     1
+    ]
+   ]
+  },
+  {
+   "type": "pattern",
+   "kind": "rays",
+   "colors": [
+    "#ffffff30",
+    "#ffffff00"
+   ],
+   "rays": 22,
+   "center": [
+    "50%",
+    "50%"
+   ]
+  },
+  {
+   "type": "pattern",
+   "kind": "bokeh",
+   "size": 90,
+   "density": 1.1,
+   "blend": "screen",
+   "opacity": 0.8
+  },
+  {
+   "type": "pattern",
+   "kind": "confetti",
+   "size": 22,
+   "density": 1.4
+  },
+  {
+   "type": "pattern",
+   "kind": "balloons",
+   "size": 70,
+   "density": 1.0,
+   "clip": "panels"
+  },
+  {
+   "type": "pattern",
+   "kind": "sparkles",
+   "size": 26,
+   "density": 0.8,
+   "blend": "screen"
+  },
+  {
+   "type": "text",
+   "text": "HAPPY\nBIRTHDAY",
+   "font": "display",
+   "panel": "side",
+   "span": true,
+   "gradient": [
+    "#ffffff",
+    "#ffe27a"
+   ],
+   "stroke": {
+    "color": "#3b0f78",
+    "width": 7
+   },
+   "shadow": {
+    "color": "#00000088",
+    "offset": [
+     3,
+     5
+    ],
+    "blur": 5
+   },
+   "line_spacing": 0.95,
+   "panel_fill": 0.9
+  },
+  {
+   "type": "text",
+   "text": "YOUR NAME",
+   "comment": "placeholder: replace with the birthday person's name",
+   "font": "rounded",
+   "panel": [
+    "front",
+    "rear"
+   ],
+   "color": "#fff6c9",
+   "stroke": {
+    "color": "#3b0f78",
+    "width": 6
+   },
+   "shadow": {
+    "color": "#00000088",
+    "offset": [
+     2,
+     4
+    ],
+    "blur": 4
+   },
+   "panel_fill": 0.7
+  }
+ ]
+}

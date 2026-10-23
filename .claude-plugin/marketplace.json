@@ -1,0 +1,15 @@
+{
+  "name": "tesla-digital-paint-shop",
+  "owner": {
+    "name": "Harshad Mane"
+  },
+  "description": "Tesla Paint Shop custom wrap designer skill.",
+  "plugins": [
+    {
+      "name": "tesla-digital-paint-shop",
+      "source": "./",
+      "description": "Design spec-compliant Tesla Paint Shop custom wraps from a theme idea or reference images, with validation and an HTML preview.",
+      "version": "1.0.0"
+    }
+  ]
+}

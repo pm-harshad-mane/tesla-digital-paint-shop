@@ -1,0 +1,199 @@
+{
+ "name": "Sunny_Toon_Town",
+ "model": "model3-2024-base",
+ "seed": 5,
+ "base_color": "#4fb8f2",
+ "layers": [
+  {
+   "type": "gradient",
+   "kind": "linear",
+   "angle": 90,
+   "stops": [
+    [
+     "#2a9df4",
+     0
+    ],
+    [
+     "#7fd0ff",
+     0.6
+    ],
+    [
+     "#d6f3ff",
+     1
+    ]
+   ]
+  },
+  {
+   "type": "pattern",
+   "kind": "rays",
+   "colors": [
+    "#ffffff38",
+    "#ffffff00"
+   ],
+   "rays": 18,
+   "center": [
+    "50%",
+    "18%"
+   ]
+  },
+  {
+   "type": "shape",
+   "kind": "ellipse",
+   "center": [
+    512,
+    285
+   ],
+   "radius": 78,
+   "fill": "#ffe033",
+   "glow": {
+    "color": "#fff3a0",
+    "radius": 40,
+    "strength": 1.1
+   }
+  },
+  {
+   "type": "pattern",
+   "kind": "clouds_cartoon",
+   "size": 230,
+   "density": 1.2,
+   "colors": [
+    "#ffffff",
+    "#e3f4ff",
+    "#9bd3f7"
+   ]
+  },
+  {
+   "type": "pattern",
+   "kind": "polka",
+   "colors": [
+    "#ff7ac0",
+    "#ffe033"
+   ],
+   "spacing": 70,
+   "radius": 12,
+   "opacity": 0.35,
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ring",
+   "center": [
+    170,
+    237
+   ],
+   "radius": 66,
+   "width": 31,
+   "fill": "#e8b36a",
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ring",
+   "center": [
+    170,
+    230
+   ],
+   "radius": 62,
+   "width": 28,
+   "fill": "#ff7ac0",
+   "stroke": {
+    "color": "#c2347f",
+    "width": 4
+   },
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ring",
+   "center": [
+    854,
+    237
+   ],
+   "radius": 66,
+   "width": 31,
+   "fill": "#e8b36a",
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ring",
+   "center": [
+    854,
+    230
+   ],
+   "radius": 62,
+   "width": 28,
+   "fill": "#ff7ac0",
+   "stroke": {
+    "color": "#c2347f",
+    "width": 4
+   },
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ring",
+   "center": [
+    512,
+    935
+   ],
+   "radius": 48,
+   "width": 35,
+   "fill": "#e8b36a",
+   "clip": "panels"
+  },
+  {
+   "type": "shape",
+   "kind": "ring",
+   "center": [
+    512,
+    935
+   ],
+   "radius": 48,
+   "width": 32,
+   "fill": "#ffe033",
+   "stroke": {
+    "color": "#d98a00",
+    "width": 4
+   },
+   "clip": "panels"
+  },
+  {
+   "type": "text",
+   "text": "SUNNY\nTOON TOWN",
+   "font": "rounded",
+   "panel": "side",
+   "span": true,
+   "color": "#ffe033",
+   "stroke": {
+    "color": "#1f4fa8",
+    "width": 8
+   },
+   "shadow": {
+    "color": "#1f4fa899",
+    "offset": [
+     3,
+     5
+    ],
+    "blur": 3
+   },
+   "line_spacing": 0.95,
+   "panel_fill": 0.9
+  },
+  {
+   "type": "text",
+   "text": "SUNNY TOON TOWN",
+   "font": "rounded",
+   "panel": [
+    "front",
+    "rear"
+   ],
+   "color": "#ffffff",
+   "stroke": {
+    "color": "#1f4fa8",
+    "width": 6
+   },
+   "panel_fill": 0.8
+  }
+ ]
+}

@@ -1,0 +1,9 @@
+{
+  "name": "tesla-digital-paint-shop",
+  "version": "1.0.0",
+  "description": "Design spec-compliant Tesla Paint Shop custom wraps from a theme idea or reference images, with validation and an HTML preview.",
+  "author": { "name": "Harshad Mane" },
+  "homepage": "https://github.com/pm-harshad-mane/tesla-digital-paint-shop",
+  "repository": "https://github.com/pm-harshad-mane/tesla-digital-paint-shop",
+  "keywords": ["tesla", "wrap", "paint-shop", "design", "png"]
+}
