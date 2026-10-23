@@ -114,7 +114,10 @@ colour; `tolerance` 28), `tint` colour (+ `tint_strength` 0-1, default 1: recolo
 Do not use copyrighted logos or characters.
 
 ### svg
-`src` file or `inline` markup, `box` (default full canvas) or `panel`/`span`. Needs `cairosvg` or Chrome/Chromium.
+`src` file (or `"lib:<name>"` for a bundled component from `assets/illustrations/`, e.g.
+`"lib:ringed_planet"`; see that folder's README for names and recolour roles) or `inline` markup, `box` (default full canvas) or `panel`/`span`, and `recolor`: a map of
+hex colours to replace, e.g. `{"#3a7bd5": "#ff2a6d"}` (the library README lists each component's
+colour roles). Rendered by the built-in renderer (cairosvg or Chrome are used if present).
 
 ## Tips
 - The file must end < 1 MB: `finalize` first drops low bits of RGB (smooth), and only quantises to a palette for very

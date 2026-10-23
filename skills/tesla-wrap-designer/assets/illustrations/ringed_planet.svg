@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+<!--
+  ringed_planet.svg - Lit sphere with banded atmosphere, glow and tilted ring that passes behind and in front.
+  viewBox 512x512, transparent background, drawn upright. Original artwork.
+  Recolour by find/replace of these hex values (keep the case):
+       PLANET_LIGHT  #ffd9a8  sunlit highlight
+       PLANET        #ee8a4c  main body
+       PLANET_DARK   #5c2447  night side / shadow
+       BAND          #b8452f  cloud bands
+       RING_LIGHT    #fff1d6  ring highlight
+       RING          #e0a868  ring body
+       RING_DARK     #8c5a42  ring shade
+       GLOW          #ffb98a  atmosphere glow
+-->
+<defs>
+<radialGradient id="rp_s" cx="0.5" cy="0.5" r="0.5" fx="0.32" fy="0.28"><stop offset="0" stop-color="#ffd9a8"/><stop offset="0.4" stop-color="#ee8a4c"/><stop offset="1" stop-color="#5c2447"/></radialGradient>
+<radialGradient id="rp_t" cx="0.5" cy="0.5" r="0.5" fx="0.3" fy="0.25"><stop offset="0" stop-color="#5c2447" stop-opacity="0"/><stop offset="0.6" stop-color="#5c2447" stop-opacity="0"/><stop offset="1" stop-color="#5c2447" stop-opacity="0.85"/></radialGradient>
+<radialGradient id="rp_g" cx="0.5" cy="0.5" r="0.5"><stop offset="0.6" stop-color="#ffb98a" stop-opacity="0.9"/><stop offset="1" stop-color="#ffb98a" stop-opacity="0"/></radialGradient>
+<filter id="rp_b1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="9"/></filter><filter id="rp_b2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+<clipPath id="rp_c"><circle cx="256" cy="256" r="136"/></clipPath>
+</defs>
+<circle cx="256" cy="256" r="190" fill="url(#rp_g)"/>
+<g transform="translate(256 262) rotate(-20)" opacity="0.85"><path d="M-238 0 A238 64.3 0 0 1 238 0" fill="none" stroke="#e0a868" stroke-width="20" stroke-opacity="1" stroke-linecap="butt"/><path d="M-238 0 A238 64.3 0 0 1 238 0" fill="none" stroke="#fff1d6" stroke-width="6" stroke-opacity="0.55" stroke-linecap="butt"/><path d="M-206 0 A206 55.6 0 0 1 206 0" fill="none" stroke="#fff1d6" stroke-width="12" stroke-opacity="0.95" stroke-linecap="butt"/><path d="M-206 0 A206 55.6 0 0 1 206 0" fill="none" stroke="#8c5a42" stroke-width="4" stroke-opacity="0.5" stroke-linecap="butt"/><path d="M-182 0 A182 49.1 0 0 1 182 0" fill="none" stroke="#e0a868" stroke-width="9" stroke-opacity="0.9" stroke-linecap="butt"/><path d="M-166 0 A166 44.8 0 0 1 166 0" fill="none" stroke="#8c5a42" stroke-width="5" stroke-opacity="0.8" stroke-linecap="butt"/></g>
+<circle cx="256" cy="256" r="136" fill="url(#rp_s)"/>
+<g clip-path="url(#rp_c)" fill="none" stroke-linecap="round">
+<path d="M100 196 Q256 226 420 190" stroke="#b8452f" stroke-width="16" stroke-opacity=".35"/>
+<path d="M100 238 Q256 268 420 232" stroke="#ffd9a8" stroke-width="10" stroke-opacity=".45"/>
+<path d="M100 284 Q256 316 420 276" stroke="#b8452f" stroke-width="22" stroke-opacity=".4"/>
+<path d="M100 330 Q256 360 420 322" stroke="#ffd9a8" stroke-width="8" stroke-opacity=".3"/>
+<path d="M100 366 Q256 392 420 358" stroke="#b8452f" stroke-width="14" stroke-opacity=".35"/>
+<g transform="translate(256 262) rotate(-20)" filter="url(#rp_b1)" opacity=".55"><path d="M-166 24 A166 45 0 0 0 166 24" stroke="#2a0f2a" stroke-width="22"/></g>
+</g>
+<circle cx="256" cy="256" r="136" fill="url(#rp_t)"/>
+<path d="M330 372 A136 136 0 0 0 388 300" fill="none" stroke="#ffb98a" stroke-width="5" stroke-opacity=".55" stroke-linecap="round" filter="url(#rp_b2)"/>
+<ellipse cx="206" cy="186" rx="44" ry="22" transform="rotate(-35 206 186)" fill="#fff" opacity=".16" filter="url(#rp_b2)"/>
+<g transform="translate(256 262) rotate(-20)"><path d="M-238 0 A238 64.3 0 0 0 238 0" fill="none" stroke="#e0a868" stroke-width="20" stroke-opacity="1" stroke-linecap="butt"/><path d="M-238 0 A238 64.3 0 0 0 238 0" fill="none" stroke="#fff1d6" stroke-width="6" stroke-opacity="0.55" stroke-linecap="butt"/><path d="M-206 0 A206 55.6 0 0 0 206 0" fill="none" stroke="#fff1d6" stroke-width="12" stroke-opacity="0.95" stroke-linecap="butt"/><path d="M-206 0 A206 55.6 0 0 0 206 0" fill="none" stroke="#8c5a42" stroke-width="4" stroke-opacity="0.5" stroke-linecap="butt"/><path d="M-182 0 A182 49.1 0 0 0 182 0" fill="none" stroke="#e0a868" stroke-width="9" stroke-opacity="0.9" stroke-linecap="butt"/><path d="M-166 0 A166 44.8 0 0 0 166 0" fill="none" stroke="#8c5a42" stroke-width="5" stroke-opacity="0.8" stroke-linecap="butt"/></g>
+<circle cx="256" cy="256" r="136" fill="none" stroke="#fff" stroke-opacity=".0"/>
+</svg>

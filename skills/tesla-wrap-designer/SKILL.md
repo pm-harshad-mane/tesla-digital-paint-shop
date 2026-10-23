@@ -22,6 +22,12 @@ PNG · exact template canvas (1024×1024; **Cybertruck 1024×768**) · ≤ 1,000
 or sideways**. Never hand over a file that has not passed validation and the text-orientation
 check (step 4.3).
 
+**Design quality bar:** every wrap must be creative, polished and genuinely impressive, like
+the work of a professional livery designer, never a generic template with the theme name typed
+on it. Follow `references/art-direction.md`: a concept first, layered depth and lighting,
+strong focal points, professional typography and illustrations, and a scored self-critique.
+Never deliver a draft that has not passed that critique.
+
 ## Workflow
 
 ### 0. Environment check (once per session)
@@ -54,13 +60,20 @@ The command prints the template folder. **View** its `panels_overlay.png` and re
 `panels.json` (panel ids by area, bbox, `region`, `upright_rotate`). Hero panels per model:
 `references/panel-guide.md`.
 
-### 3. Write the design spec
-Create `OUT_DIR/<Name>/design.json` (copy user images beside it).
+### 3. Art direction, then the design spec
+First read `references/art-direction.md` and decide the **concept**: a big idea in one
+sentence, 3 mood words, a 60/30/10 palette with hex codes, one focal point per view (hood,
+each side, trunk) and the direction of motion. Share it with the user in 2–3 lines. When the
+brief is open, propose 2 distinct directions. Examples are scaffolding only: never ship one
+unchanged; personalise it to the brief.
+
+Then create `OUT_DIR/<Name>/design.json` (copy user images beside it).
 Schema: `references/design-spec.md` · starting points: `assets/examples/*.json` ·
 composition rules and theme recipes: `references/design-playbook.md`.
-- Layers 1–2 cover the whole canvas (gradient / noise / pattern).
+- Layers 1–2 cover the whole canvas (gradient / noise / pattern); build 4–6 depth planes
+  in total (field → atmosphere → motifs → accents → heroes → glows/highlights).
 - Heroes (text, emblems, user photos) inside single large panels, mirrored on both sides;
-  prefer region selectors (`"panel": "front"`, `"side"`) over raw coordinates.
+  prefer region selectors (`"panel": "hood"`, `"trunk"`, `"side"`) over raw coordinates.
 - Side text: `"panel": "side"` (one panel per side), or `"span": true` to run one phrase across
   the front + rear door of a side (adjacent on the car, so it reads across the door gap like a
   real livery). Never span panels that are not neighbours on the car.
@@ -68,7 +81,10 @@ composition rules and theme recipes: `references/design-playbook.md`.
   engine applies each panel's `upright_rotate`. Only set `rotate` by hand when placing by
   `position`, and then it must equal the `upright_rotate` of the panel under the text.
 - Put lettering in `text` layers, not inside SVG/images, so it can be checked automatically.
-- Illustrations: original inline SVG in an `svg` layer (works everywhere; see backends below).
+- Illustrations: start from the polished components in `assets/illustrations/` (recolour,
+  combine, extend) or draw original inline SVG to the same standard: bold silhouettes, a
+  consistent style, and base colour + shadow + highlight on every shape. No clip-art. Put a
+  side hero illustration on the rear quarters, not just text.
 
 ### 4. Render, validate, inspect
 ```bash
@@ -92,7 +108,11 @@ Then **critically review before showing the user** (view the images):
    elements get WARN when rotated unusually: if they contain lettering or a face, they must
    look upright in this sheet too.
 4. Validation lines — all PASS; investigate any WARN.
-Iterate on the spec, not on pixels. Typical: 2–3 renders. In the delivery message, state
+5. **Design critique** — score the 8 criteria in `references/art-direction.md` §5 honestly.
+   Ship when every score is ≥ 4; otherwise fix the two weakest criteria and re-render (up to
+   5 rounds). If the bar is still not met, deliver the best round and say which criteria fall
+   short and why.
+Iterate on the spec, not on pixels. Typical: 2–4 renders. In the delivery message, state
 explicitly that text orientation was checked (e.g. "all 4 text elements verified upright").
 
 ### 5. User-supplied finished art
@@ -107,14 +127,16 @@ Resizes to the template, flattens transparency, compresses, renames and validate
 art not drawn on the template crosses seams unpredictably; offer a layered rebuild.
 
 ### 6. Deliver
-Give the user the PNG(s), a validation summary (dimensions, bytes, 0 transparent pixels), the
+Give the user the PNG(s), a 2–3 line design rationale (concept, palette, focal points), a
+validation summary (dimensions, bytes, 0 transparent pixels), the
 preview HTML (open it in any browser), a note that hood art looks upside-down in the flat file
 by design, and the upload steps — copy **only the PNGs**, never `review/`:
 - **USB:** exFAT / FAT32 / MS-DOS FAT / ext3 / ext4 (not NTFS) → folder `Wraps` at the root →
   up to 10 PNGs → no map/firmware update files on the drive.
 - **Tesla app (v4.59.0+):** Creations → Wrap → Upload (up to 10).
 - **In the car:** Toybox → Paint Shop → Wraps tab.
-Offer one variant (colourway or layout) as a next step.
+Offer one meaningfully different alternative direction (new concept or layout, not just a
+recolour) as a next step.
 
 ## Reference
 | Script | Purpose |

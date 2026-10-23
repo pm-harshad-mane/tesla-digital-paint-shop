@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import math
+import re
 from pathlib import Path
 
 import numpy as np
@@ -29,7 +30,7 @@ LAYER_KEYS = {
              "panel", "span", "panel_fill", "rotate", "letter_spacing", "line_spacing", "align", "gradient"},
     "image": {"src", "fit", "box", "panel", "span", "panel_fill", "rotate", "mask", "feather", "remove_bg",
               "tolerance", "tint", "tint_strength", "corner"},
-    "svg": {"src", "inline", "box", "panel", "span", "panel_fill", "rotate"},
+    "svg": {"src", "inline", "box", "panel", "span", "panel_fill", "rotate", "recolor"},
 }
 
 
@@ -77,6 +78,15 @@ class _Ctx:
         return self.x(p[0]), self.y(p[1])
 
     def path(self, src):
+        """Resolve a spec file reference. `lib:<name>` means the skill's bundled illustration
+        library (assets/illustrations/<name>.svg), so specs stay portable across installs."""
+        if str(src).startswith("lib:"):
+            from .models import SKILL_ROOT
+            name = str(src)[4:]
+            p = SKILL_ROOT / "assets" / "illustrations" / (name if name.endswith(".svg") else name + ".svg")
+            if not p.exists():
+                raise FileNotFoundError(f"No illustration {name!r} in {p.parent}")
+            return p
         p = Path(str(src)).expanduser()
         if not p.is_absolute():
             p = self.spec_dir / p
@@ -814,12 +824,25 @@ def _place_visual(ctx, L, idx, kind, make_tile):
     label = L.get("src") or f"inline {kind}"
     groups = _panel_groups(ctx, L)
     if groups is not None:
+        pmap = ctx.panel_data()[1]
         for grp in groups:
-            cx, cy, fw, fh, rot = _panel_frame(ctx, grp, rot_given, float(L.get("panel_fill", 1.0)))
-            tile = make_tile(fw, fh)
-            part = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
-            _paste_rotated(part, tile, (tile.width / 2, tile.height / 2), (cx, cy), rot)
-            _record(ctx, idx, kind, label, part, rot)
+            fill = float(L.get("panel_fill", 1.0))
+            area = np.isin(pmap, grp)
+            if len(grp) > 1:
+                area = ~_dilate(~_dilate(area, 8), 8)
+            inside = ~_dilate(~area, 4)
+            # Shrink until the art sits inside the panel (irregular panels such as wheel
+            # arches would otherwise cut it at a seam), like panel-placed text.
+            for _ in range(12):
+                cx, cy, fw, fh, rot = _panel_frame(ctx, grp, rot_given, fill)
+                tile = make_tile(fw, fh)
+                part = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+                _paste_rotated(part, tile, (tile.width / 2, tile.height / 2), (cx, cy), rot)
+                a = np.asarray(part.getchannel("A")) > 76
+                if not a.any() or (a & inside).sum() / a.sum() >= 0.97:
+                    break
+                fill *= 0.9
+            _record(ctx, idx, kind, label, part, rot, grp)
             canvas = Image.alpha_composite(canvas, part)
         return canvas
     x, y, w, h = ctx.box(L.get("box", ["0%", "0%", "100%", "100%"]))
@@ -856,6 +879,10 @@ def _svg(ctx, L, idx):
         data = ctx.path(L["src"]).read_text(encoding="utf-8")
     else:
         raise ValueError(f"layer {idx}: svg layer needs 'src' or 'inline'")
+    for old, new in (L.get("recolor") or {}).items():  # e.g. {"#3a7bd5": "#ff2a6d"}
+        if old.lower() not in data.lower():
+            ctx.warn.append(f"layer {idx}: recolor source {old} not found in the SVG")
+        data = re.sub(re.escape(old), new, data, flags=re.I)
     return _place_visual(ctx, L, idx, "svg", lambda tw, th: render_svg(data, (max(1, round(tw)), max(1, round(th)))))
 
 
