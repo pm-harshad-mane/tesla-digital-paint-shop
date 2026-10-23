@@ -43,8 +43,15 @@ Place on the car (photo/logo/artwork) · Inspiration only · No images.
 For images to place: ask for file paths; confirm they own them or have permission
 (personal photos, their own artwork). Ask where the hero image should go: Hood · Both sides · Rear.
 
+## Round 2b — design mode (mandatory on every new request)
+
+**Q7. Design mode?** Code-drawn (default, offline) · AI image mode (image model paints the
+artwork; prompt sent to a provider; may cost; results vary). Ask it every time, even if the
+user chose AI mode before. See `ai-image-mode.md`.
+
 ## Defaults when the user says "just go" / "surprise me"
 
+- Code-drawn mode ("just go" is not consent to AI image mode).
 - 1 primary design + 1 alternate colourway.
 - Palette and motifs from `design-playbook.md` theme recipes.
 - Text only if the theme implies it (birthday → "HAPPY BIRTHDAY" + name if given).

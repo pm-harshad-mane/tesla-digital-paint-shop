@@ -48,6 +48,13 @@ style direction, exact text, palette, reference images (+ place vs inspire, and 
 number of variants. Franchise themes get the homage approach in
 `references/design-playbook.md` (original art, no copyrighted characters/logos) — say it once.
 
+**Design mode: ask on every new wrap request, never assume.** Offer (a) **Code-drawn**
+(default, offline) or (b) **AI image mode** (an image model paints the artwork; the design
+prompt goes to an image provider, it may cost credits, and results vary). Use the exact
+wording and image-source rules in `references/ai-image-mode.md`. AI image mode needs the
+user's explicit "yes" for *this* request; a previous request's answer does not carry over.
+No answer, or unsure → code-drawn.
+
 ### 2. Get and study the template
 ```bash
 python3 SKILL_DIR/scripts/fetch_templates.py --model <id>
@@ -61,6 +68,11 @@ The command prints the template folder. **View** its `panels_overlay.png` and re
 `references/panel-guide.md`.
 
 ### 3. Art direction, then the design spec
+*(AI image mode: do the art direction below, then follow `references/ai-image-mode.md`.
+It plans the images with `plan_ai_assets.py`, then you generate them and render the
+generated `design.json` with step 4. All quality, orientation and validation checks apply
+unchanged.)*
+
 First read `references/art-direction.md` and decide the **concept**: a big idea in one
 sentence, 3 mood words, a 60/30/10 palette with hex codes, one focal point per view (hood,
 each side, trunk) and the direction of motion. Share it with the user in 2–3 lines. When the
@@ -148,6 +160,8 @@ recolour) as a next step.
 | `validate_wrap.py *.png --model ID [--json]` | Spec validation (exit 1 on error) |
 | `make_check.py wrap.png --model ID` | Art-on-template review image |
 | `make_preview.py --model ID *.png -o out.html` | Self-contained HTML viewer with the wraps embedded |
+| `plan_ai_assets.py --model ID --out-dir DIR` | AI image mode: asset sizes/prompts + design.json |
+| `generate_image.py --prompt P --size S --out F` | AI image mode: OpenAI-compatible image API (key from env only) |
 | `selftest.py` | End-to-end test over all models (needs templates) |
 
 `assets/viewer/wrap-viewer.html` also works standalone in a browser: pick a model, drop PNGs →

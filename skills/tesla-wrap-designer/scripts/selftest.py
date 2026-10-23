@@ -80,6 +80,23 @@ def main() -> int:
             res = orientation.check(compose.LAST_PLACEMENTS, {p["id"]: p for p in templates.load_panels(mid)["panels"]})
             check(res and res[0]["verdict"] == "UPSIDE-DOWN" and not res[0]["ok"], f"{mid}: upside-down text must fail")
 
+        print("[AI image mode placement]")
+        art = Path(tmp) / "art.png"
+        grad = np.linspace(0, 255, 1536, dtype=np.uint8)
+        Image.fromarray(np.stack([np.tile(grad, (1024, 1))] * 3, -1), "RGB").save(art)
+        for m in models.list_models():
+            mid = m["id"]
+            spec = {"model": mid, "layers": [{"type": "image", "src": str(art), "panel": "side_all",
+                                              "fill_panel": True, "image_front": "right"}]}
+            img = compose.render_spec(spec)
+            pmap = templates.load_panel_map(mid)
+            side = np.isin(pmap, [p["id"] for p in templates.load_panels(mid)["panels"]
+                                  if p.get("region") == "side"])
+            alpha = np.asarray(img.getchannel("A")) > 0
+            cov = (alpha & side).sum() / max(1, side.sum())
+            groups = [r for r in compose.LAST_PLACEMENTS if r.get("fills_panel")]
+            check(cov > 0.98 and len(groups) == 2, f"{mid}: side_all art covers both sides ({cov:.1%}, {len(groups)} groups)")
+
         mid = "model3"
         w, h = models.canvas_size(mid)
         rep = validate.validate_file(Path(tmp) / "Selftest model3.png", mid)

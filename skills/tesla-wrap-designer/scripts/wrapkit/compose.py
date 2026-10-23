@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 import numpy as np
-from PIL import Image, ImageChops, ImageDraw, ImageFilter
+from PIL import Image, ImageOps, ImageChops, ImageDraw, ImageFilter
 
 from . import motifs
 from .color import parse_color
@@ -29,8 +29,9 @@ LAYER_KEYS = {
     "text": {"text", "font", "size", "fit_box", "color", "stroke", "shadow", "glow", "position", "anchor",
              "panel", "span", "panel_fill", "rotate", "letter_spacing", "line_spacing", "align", "gradient"},
     "image": {"src", "fit", "box", "panel", "span", "panel_fill", "rotate", "mask", "feather", "remove_bg",
+              "fill_panel", "image_front", "focus",
               "tolerance", "tint", "tint_strength", "corner"},
-    "svg": {"src", "inline", "box", "panel", "span", "panel_fill", "rotate", "recolor"},
+    "svg": {"src", "inline", "box", "panel", "span", "panel_fill", "rotate", "recolor", "fill_panel", "image_front"},
 }
 
 
@@ -387,9 +388,17 @@ def _score(P):
 
 
 def _select(ctx, name, span):
-    """Resolve a panel selector (largest|hood|trunk|front|rear|side|pillar) into groups of ids."""
+    """Resolve a panel selector (largest|hood|trunk|front|rear|side|side_all|pillar) into groups."""
     panels = list(ctx.panel_data()[0].values())
     name = name.lower()
+    if name == "side_all":
+        # Every side panel, one merged group per side of the car: a whole-side canvas for
+        # panoramic artwork (e.g. AI-generated images) that is cut across the panels.
+        by_rot: dict = {}
+        for p in panels:
+            if p.get("region") == "side":
+                by_rot.setdefault(p.get("upright_rotate", 0), []).append(p["id"])
+        return [sorted(ids) for _, ids in sorted(by_rot.items())]
     if name in ("hood", "trunk"):
         # Hood / trunk lid: the sizeable front / rear panel nearest the canvas centre
         # (bumpers sit at the outer edges of every template layout).
@@ -406,7 +415,8 @@ def _select(ctx, name, span):
     elif name in ("front", "rear", "side", "pillar"):
         cand = [p for p in panels if p.get("region") == name]
     else:
-        raise ValueError(f"Unknown panel selector {name!r}: use ids or largest|hood|trunk|front|rear|side|pillar")
+        raise ValueError(f"Unknown panel selector {name!r}: use ids or "
+                         "largest|hood|trunk|front|rear|side|side_all|pillar")
     if not cand:
         return []
     by_rot: dict = {}
@@ -587,7 +597,7 @@ MIN_TEXT_PX = 18  # smaller lettering is unreadable in the car's 3D view; such c
 SMALL_TEXT_PX = 28  # below this, text is drawn but flagged as hard to read
 
 
-def _record(ctx, idx, kind, label, part, rot, group=None):
+def _record(ctx, idx, kind, label, part, rot, group=None, fills=False):
     """Remember where an element landed (bbox, dominant panel, applied rotation)."""
     a = np.asarray(part.getchannel("A")) > 76
     if not a.any():
@@ -595,7 +605,8 @@ def _record(ctx, idx, kind, label, part, rot, group=None):
     ys, xs = np.nonzero(a)
     entry = {"layer": idx, "kind": kind, "label": label, "rotate": float(rot or 0) % 360,
              "bbox": [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1],
-             "panel": None, "group": list(group) if group else None, "on_panel_frac": 0.0}
+             "panel": None, "group": list(group) if group else None, "on_panel_frac": 0.0,
+             "fills_panel": fills}
     if ctx.model:
         ids = ctx.panel_data()[1][a]
         hit = ids[ids > 0]
@@ -784,7 +795,7 @@ def _apply_mask(tile: Image.Image, mode, feather, corner):
     return out
 
 
-def _fit_tile(src: Image.Image, tw, th, fit):
+def _fit_tile(src: Image.Image, tw, th, fit, focus=(0.5, 0.5)):
     tw, th = max(1, int(round(tw))), max(1, int(round(th)))
     sw, sh = src.size
     if fit == "stretch":
@@ -792,7 +803,8 @@ def _fit_tile(src: Image.Image, tw, th, fit):
     if fit == "cover":
         k = max(tw / sw, th / sh)
         r = src.resize((max(1, round(sw * k)), max(1, round(sh * k))), Image.LANCZOS)
-        l, t = (r.width - tw) // 2, (r.height - th) // 2
+        fx, fy = (min(1.0, max(0.0, float(v))) for v in focus)  # where the crop window sits
+        l, t = round((r.width - tw) * fx), round((r.height - th) * fy)
         return r.crop((l, t, l + tw, t + th))
     if fit == "contain":
         k = min(tw / sw, th / sh)
@@ -817,6 +829,26 @@ def _tint(img: Image.Image, color, strength):
     return motifs._to_img(a)
 
 
+def _span_extent(ctx, grp, rot):
+    """Width/height of a panel group's union bbox in its upright (as-on-car) orientation."""
+    Ps = [ctx.panel(i) for i in grp]
+    w = max(p["bbox"][2] for p in Ps) - min(p["bbox"][0] for p in Ps)
+    h = max(p["bbox"][3] for p in Ps) - min(p["bbox"][1] for p in Ps)
+    return (h, w) if abs(abs(rot) % 180 - 90) < 1e-3 else (w, h)
+
+
+def _orient_front(tile, L, rot, ctx):
+    """Mirror directional artwork so its declared front (`image_front`: left|right) points to
+    the car's front on this panel. Never mirror art that contains lettering."""
+    want = L.get("image_front")
+    if want not in ("left", "right"):
+        return tile
+    from .orientation import front_hint
+    hint = front_hint(rot, ctx.W == ctx.H)
+    actual = "right" if hint == "front >" else "left" if hint == "< front" else None
+    return ImageOps.mirror(tile) if actual and actual != want else tile
+
+
 def _place_visual(ctx, L, idx, kind, make_tile):
     """Shared placement for image/svg: make_tile(w, h) -> RGBA tile, placed in box or panel(s)."""
     canvas = Image.new("RGBA", (ctx.W, ctx.H), (0, 0, 0, 0))
@@ -830,12 +862,29 @@ def _place_visual(ctx, L, idx, kind, make_tile):
             area = np.isin(pmap, grp)
             if len(grp) > 1:
                 area = ~_dilate(~_dilate(area, 8), 8)
+            if L.get("fill_panel"):
+                # Artwork that covers the whole panel (group) and is cut along its seams.
+                rot = _panel_frame(ctx, grp, rot_given, 1.0)[4]
+                Ps = [ctx.panel(i) for i in grp]
+                cx = (min(p["bbox"][0] for p in Ps) + max(p["bbox"][2] for p in Ps)) / 2
+                cy = (min(p["bbox"][1] for p in Ps) + max(p["bbox"][3] for p in Ps)) / 2
+                fw, fh = _span_extent(ctx, grp, rot)
+                tile = _orient_front(make_tile(math.ceil(fw) + 8, math.ceil(fh) + 8), L, rot, ctx)
+                part = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+                _paste_rotated(part, tile, (tile.width / 2, tile.height / 2), (cx, cy), rot)
+                keep = _dilate(area, int(L.get("clip_bleed", 6)))
+                arr = np.asarray(part).copy()
+                arr[..., 3] = np.where(keep, arr[..., 3], 0)
+                part = Image.fromarray(arr, "RGBA")
+                _record(ctx, idx, kind, label, part, rot, grp, fills=True)
+                canvas = Image.alpha_composite(canvas, part)
+                continue
             inside = ~_dilate(~area, 4)
             # Shrink until the art sits inside the panel (irregular panels such as wheel
             # arches would otherwise cut it at a seam), like panel-placed text.
             for _ in range(12):
                 cx, cy, fw, fh, rot = _panel_frame(ctx, grp, rot_given, fill)
-                tile = make_tile(fw, fh)
+                tile = _orient_front(make_tile(fw, fh), L, rot, ctx)
                 part = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
                 _paste_rotated(part, tile, (tile.width / 2, tile.height / 2), (cx, cy), rot)
                 a = np.asarray(part.getchannel("A")) > 76
@@ -862,7 +911,7 @@ def _image(ctx, L, idx):
     fit = L.get("fit", "cover")
 
     def make(tw, th):
-        tile = _fit_tile(src, tw, th, fit)
+        tile = _fit_tile(src, tw, th, fit, L.get("focus", (0.5, 0.5)))
         tile = _apply_mask(tile, L.get("mask"), float(L.get("feather", 0)), ctx.x(L["corner"]) if L.get("corner") else None) \
             if (L.get("mask") not in (None, "none") or L.get("feather")) else tile
         if L.get("tint"):

@@ -50,7 +50,7 @@ def check(placements: list[dict], panels: dict[int, dict]) -> list[dict]:
         ok = verdict == "upright"
         msgs = [f"{name} on panel {pid} ({panel.get('region', '?')}): rotate {p['rotate']:.0f}, "
                 f"needs {expected:.0f} -> {verdict}"]
-        if p["on_panel_frac"] < MIN_ON_PANEL:
+        if p["on_panel_frac"] < MIN_ON_PANEL and not p.get("fills_panel"):
             msgs.append(f"only {p['on_panel_frac']:.0%} inside the panel - it crosses a seam")
             ok = False
         x0, y0, x1, y1 = p["bbox"]

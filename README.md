@@ -13,6 +13,11 @@ optionally with your own images, into a custom wrap for Tesla's
   **no transparent pixels** (they render black on the car), valid file name
 - Validates every output, renders a seam-check image, and builds a self-contained HTML
   preview to inspect it before uploading
+- **Two design modes, chosen on every request:** *code-drawn* (default, offline: Claude
+  designs with vector shapes, patterns and text) or opt-in *AI image mode* (an image model
+  such as OpenAI's GPT Image paints the artwork; the skill plans each image's size and safe
+  area per vehicle, cuts the images across the panels, adds text itself, and validates as
+  usual). See `skills/tesla-wrap-designer/references/ai-image-mode.md`
 
 The skill is a single self-contained folder, `skills/tesla-wrap-designer/`. Nothing in it
 depends on this repository, and it works in Claude, ChatGPT, OpenAI Codex and other tools that
@@ -87,6 +92,16 @@ Codex detects new skills automatically; restart it if the skill doesn't appear. 
 explicitly with `$tesla-wrap-designer` (or pick it from `/skills`), or simply describe the
 wrap you want. Codex runs the scripts locally, so you need Python 3.10+ with Pillow and
 numpy (`pip install -r ~/.agents/skills/tesla-wrap-designer/requirements.txt`).
+
+## AI image mode
+
+Optional and opt-in: the skill asks on every new request. Images come from, in order: the
+platform's own image tool (e.g. in ChatGPT), the bundled `scripts/generate_image.py` (any
+OpenAI-compatible Images API; set `OPENAI_API_KEY`, and optionally `OPENAI_BASE_URL` and
+`TESLA_WRAP_IMAGE_MODEL`, default `gpt-image-2`, in your environment, never in chat), or
+images you generate elsewhere and attach. Your design prompt is sent to that provider and
+may cost credits. Text on the wrap is always added by the skill itself, never by the image
+model.
 
 ## Building
 
