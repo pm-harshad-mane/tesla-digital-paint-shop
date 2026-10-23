@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+import tempfile
 import time
 from pathlib import Path
 
@@ -19,8 +20,7 @@ from wrapkit import minisvg, svgrender  # noqa: E402
 
 SIZE = (1024, 1024)
 MIN_IOU = 0.95
-DEFAULT_OUT = Path("/private/tmp/claude-502/-Users-harshadmane-Desktop-GitHub-tesla-digital-paint-shop/"
-                   "cb3573ad-9fff-4d30-8ef6-d64a754ad328/scratchpad/minisvg")
+DEFAULT_OUT = Path(tempfile.gettempdir()) / "tesla-wrap-minisvg-test"
 
 UNICORN = """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
 <defs>
