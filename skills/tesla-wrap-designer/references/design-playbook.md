@@ -1,5 +1,8 @@
 # Design playbook
 
+Read `art-direction.md` first: it sets the quality bar and the self-critique every wrap must
+pass. This file covers composition mechanics and theme starting points.
+
 How to turn a theme idea into a wrap that looks intentional on a 3D car, not like a
 wallpaper stretched over seams.
 

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+<!--
+  heart_burst.svg - Glossy heart with radiating burst rays and sparkles.
+  viewBox 512x512, transparent background, drawn upright. Original artwork.
+  Recolour by find/replace of these hex values (keep the case):
+       HEART_LIGHT   #ff9db8  highlight
+       HEART         #f0214f  body
+       HEART_DARK    #7d0a2a  shadow / outline
+       SPARKLE       #ffd84a  rays and sparkles
+       SPARKLE_DARK  #ff9a1a  sparkle shade
+-->
+<defs>
+<radialGradient id="hb_h" cx="0.5" cy="0.5" r="0.6" fx="0.32" fy="0.28"><stop offset="0" stop-color="#ff7d9f"/><stop offset="0.5" stop-color="#f0214f"/><stop offset="1" stop-color="#7d0a2a"/></radialGradient>
+<filter id="hb_b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter><filter id="hb_g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter>
+<clipPath id="hb_c"><path d="M256 410 C130 322 84 250 104 184 C124 120 220 106 256 176 C292 106 388 120 408 184 C428 250 382 322 256 410 Z"/></clipPath>
+</defs>
+<path d="M256 410 C130 322 84 250 104 184 C124 120 220 106 256 176 C292 106 388 120 408 184 C428 250 382 322 256 410 Z" fill="#ff3a66" opacity=".55" filter="url(#hb_g)" transform="translate(0 0) scale(1.0)"/>
+<g fill="none"><path d="M256.0 69.9 L256.0 30.7" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M331.0 84.5 L339.4 64.6" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/><path d="M394.6 126.2 L422.9 98.5" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M437.1 188.5 L457.4 180.2" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/><path d="M452.0 262.0 L492.0 262.0" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M437.1 335.5 L457.4 343.8" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/><path d="M394.6 397.8 L422.9 425.5" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M331.0 439.5 L339.4 459.4" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/><path d="M256.0 454.1 L256.0 493.3" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M181.0 439.5 L172.6 459.4" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/><path d="M117.4 397.8 L89.1 425.5" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M74.9 335.5 L54.6 343.8" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/><path d="M60.0 262.0 L20.0 262.0" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M74.9 188.5 L54.6 180.2" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/><path d="M117.4 126.2 L89.1 98.5" stroke="#ffd84a" stroke-width="12" stroke-linecap="round"/><path d="M181.0 84.5 L172.6 64.6" stroke="#ff9a1a" stroke-width="9" stroke-linecap="round"/></g>
+<path d="M256 410 C130 322 84 250 104 184 C124 120 220 106 256 176 C292 106 388 120 408 184 C428 250 382 322 256 410 Z" fill="url(#hb_h)" stroke="#5c0720" stroke-width="9" stroke-linejoin="round"/>
+<g clip-path="url(#hb_c)">
+<path d="M256 410 C340 360 420 300 420 220 C440 300 360 400 256 430 Z" fill="#ff5a80" opacity=".5" filter="url(#hb_b)"/>
+<path d="M256 176 C292 106 388 120 408 184 C440 250 382 322 256 410 C330 330 380 260 350 200 C340 180 300 150 256 176Z" fill="#5c0720" opacity=".25"/>
+</g>
+<path d="M118 196 C112 160 150 136 186 144" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" opacity=".9"/>
+<ellipse cx="206" cy="132" rx="0" ry="0"/>
+<circle cx="130" cy="228" r="8" fill="#fff" opacity=".85"/>
+<g transform="translate(50 58) scale(0.9)"><path d="M0 -30 Q4 -4 30 0 Q4 4 0 30 Q-4 4 -30 0 Q-4 -4 0 -30Z" fill="#ffd84a" stroke="#ff9a1a" stroke-width="3" stroke-linejoin="round"/><path d="M0 -30 Q4 -4 30 0 Q0 0 0 0Z" fill="#fff" opacity=".7"/></g><g transform="translate(464 56) scale(1.1)"><path d="M0 -30 Q4 -4 30 0 Q4 4 0 30 Q-4 4 -30 0 Q-4 -4 0 -30Z" fill="#ffd84a" stroke="#ff9a1a" stroke-width="3" stroke-linejoin="round"/><path d="M0 -30 Q4 -4 30 0 Q0 0 0 0Z" fill="#fff" opacity=".7"/></g><g transform="translate(466 458) scale(0.8)"><path d="M0 -30 Q4 -4 30 0 Q4 4 0 30 Q-4 4 -30 0 Q-4 -4 0 -30Z" fill="#ffd84a" stroke="#ff9a1a" stroke-width="3" stroke-linejoin="round"/><path d="M0 -30 Q4 -4 30 0 Q0 0 0 0Z" fill="#fff" opacity=".7"/></g><g transform="translate(48 456) scale(0.7)"><path d="M0 -30 Q4 -4 30 0 Q4 4 0 30 Q-4 4 -30 0 Q-4 -4 0 -30Z" fill="#ffd84a" stroke="#ff9a1a" stroke-width="3" stroke-linejoin="round"/><path d="M0 -30 Q4 -4 30 0 Q0 0 0 0Z" fill="#fff" opacity=".7"/></g>
+</svg>

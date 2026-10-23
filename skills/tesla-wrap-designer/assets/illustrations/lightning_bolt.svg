@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+<!--
+  lightning_bolt.svg - Faceted electric bolt with cyan glow and crackle sparks.
+  viewBox 512x512, transparent background, drawn upright. Original artwork.
+  Recolour by find/replace of these hex values (keep the case):
+       BOLT_LIGHT    #fffbd0  hot facet / core
+       BOLT          #ffe03a  bolt body
+       BOLT_DARK     #ff8f00  shadow facet
+       GLOW          #38c8ff  electric glow
+       OUTLINE       #1c1f4a  outline
+-->
+<defs>
+<linearGradient id="lb_b" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#fffbd0"/><stop offset="0.35" stop-color="#ffe03a"/><stop offset="1" stop-color="#ff8f00"/></linearGradient>
+<filter id="lb_g" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter><filter id="lb_g2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+</defs>
+<polygon points="300.0,14.0 116.0,288.0 226.0,288.0 168.0,498.0 404.0,200.0 286.0,200.0 380.0,14.0" fill="#38c8ff" stroke="#38c8ff" stroke-width="40" stroke-linejoin="round" opacity=".55" filter="url(#lb_g)"/>
+<polygon points="300.0,14.0 116.0,288.0 226.0,288.0 168.0,498.0 404.0,200.0 286.0,200.0 380.0,14.0" fill="#38c8ff" stroke="#38c8ff" stroke-width="16" stroke-linejoin="round" opacity=".8" filter="url(#lb_g2)"/>
+<polygon points="300.0,14.0 116.0,288.0 226.0,288.0 168.0,498.0 404.0,200.0 286.0,200.0 380.0,14.0" fill="url(#lb_b)" stroke="#1c1f4a" stroke-width="10" stroke-linejoin="round"/>
+<polygon points="300,14 116,288 226,288 168,498 250,300 190,260 330,100" fill="#fff" opacity=".0"/>
+<polygon points="300.0,14.0 380.0,14.0 286.0,200.0 404.0,200.0 168.0,498.0 250.0,262.0 226.0,288.0 300.0,200.0" fill="#ff8f00" opacity=".45"/>
+<polygon points="318.0,40.0 142.0,284.0 238.0,284.0 194.0,430.0 350.0,214.0 262.0,214.0 344.0,40.0" fill="none" stroke="#fffbd0" stroke-width="6" stroke-linejoin="round" opacity=".0"/>
+<path d="M312 36 L146 280" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".85"/>
+<path d="M186 456 L240 296" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity=".5"/>
+<g stroke="#e8fbff" stroke-width="6" stroke-linecap="round" fill="none"><path d="M96 110 L124 124 L108 150 L138 160"/><path d="M432 330 L406 344 L420 370 L392 380"/><path d="M60 330 L82 340"/><path d="M450 120 L430 112"/></g>
+</svg>

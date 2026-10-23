@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+<!--
+  sparkle_burst.svg - Four-point faceted starburst with lens-flare streak, halo and satellite sparkles.
+  viewBox 512x512, transparent background, drawn upright. Original artwork.
+  Recolour by find/replace of these hex values (keep the case):
+       STAR_LIGHT    #ffffff  lit facets / hot centre
+       STAR          #ffe27a  star body
+       STAR_DARK     #ff9f1c  shadow facets
+       GLOW          #ffd34d  halo and flare streak
+-->
+<defs>
+<radialGradient id="sb_g" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff" stop-opacity="1"/><stop offset="0.25" stop-color="#ffd34d" stop-opacity="0.75"/><stop offset="1" stop-color="#ffd34d" stop-opacity="0"/></radialGradient>
+<linearGradient id="sb_s" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ffd34d" stop-opacity="0"/><stop offset="0.5" stop-color="#ffd34d" stop-opacity="0.95"/><stop offset="1" stop-color="#ffd34d" stop-opacity="0"/></linearGradient>
+<filter id="sb_b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
+</defs>
+<circle cx="256" cy="256" r="196" fill="url(#sb_g)"/>
+<ellipse cx="256" cy="256" rx="250" ry="9" fill="url(#sb_s)"/>
+<g fill="#ffe27a"><path d="M256 256 L256.0 226.0 Q268.7 228.3 362.1 149.9 Z"/><path d="M256 256 L286.0 256.0 Q283.7 268.7 362.1 362.1 Z"/><path d="M256 256 L256.0 286.0 Q243.3 283.7 149.9 362.1 Z"/><path d="M256 256 L226.0 256.0 Q228.3 243.3 149.9 149.9 Z"/></g><g fill="#ff9f1c"><path d="M256 256 L286.0 256.0 Q283.7 243.3 362.1 149.9 Z"/><path d="M256 256 L256.0 286.0 Q268.7 283.7 362.1 362.1 Z"/><path d="M256 256 L226.0 256.0 Q228.3 268.7 149.9 362.1 Z"/><path d="M256 256 L256.0 226.0 Q243.3 228.3 149.9 149.9 Z"/></g>
+<g fill="#ffe27a" stroke="#ffe27a" stroke-width="2" stroke-linejoin="round"><path d="M256 256 L232.0 232.0 Q244.0 215.4 256.0 18.0 Z"/><path d="M256 256 L280.0 232.0 Q296.6 244.0 494.0 256.0 Z"/><path d="M256 256 L280.0 280.0 Q268.0 296.6 256.0 494.0 Z"/><path d="M256 256 L232.0 280.0 Q215.4 268.0 18.0 256.0 Z"/></g>
+<g fill="#ff9f1c" stroke="#ff9f1c" stroke-width="2" stroke-linejoin="round"><path d="M256 256 L280.0 232.0 Q268.0 215.4 256.0 18.0 Z"/><path d="M256 256 L280.0 280.0 Q296.6 268.0 494.0 256.0 Z"/><path d="M256 256 L232.0 280.0 Q244.0 296.6 256.0 494.0 Z"/><path d="M256 256 L232.0 232.0 Q215.4 244.0 18.0 256.0 Z"/></g>
+<g fill="#ffffff" opacity=".9" stroke="#fff" stroke-width="2"><path d="M256 256 L232.0 232.0 Q244.0 215.4 256.0 18.0 Z"/><path d="M256 256 L280.0 232.0 Q296.6 244.0 494.0 256.0 Z"/><path d="M256 256 L280.0 280.0 Q268.0 296.6 256.0 494.0 Z"/><path d="M256 256 L232.0 280.0 Q215.4 268.0 18.0 256.0 Z"/></g>
+<circle cx="256" cy="256" r="46" fill="#ffd34d" opacity=".6" filter="url(#sb_b)"/>
+<circle cx="256" cy="256" r="24" fill="#fff"/>
+<g transform="translate(106 118)"><g fill="#ffe27a"><path d="M0 0 L-5.7 -5.7 Q-2.8 -8.8 0.0 -50.0 Z"/><path d="M0 0 L5.7 -5.7 Q8.8 -2.8 50.0 0.0 Z"/><path d="M0 0 L5.7 5.7 Q2.8 8.8 0.0 50.0 Z"/><path d="M0 0 L-5.7 5.7 Q-8.8 2.8 -50.0 0.0 Z"/></g><g fill="#ff9f1c"><path d="M0 0 L5.7 -5.7 Q2.8 -8.8 0.0 -50.0 Z"/><path d="M0 0 L5.7 5.7 Q8.8 2.8 50.0 0.0 Z"/><path d="M0 0 L-5.7 5.7 Q-2.8 8.8 0.0 50.0 Z"/><path d="M0 0 L-5.7 -5.7 Q-8.8 -2.8 -50.0 0.0 Z"/></g></g><g transform="translate(410 134)"><g fill="#ffe27a"><path d="M0 0 L-4.5 -4.5 Q-2.3 -7.1 0.0 -40.0 Z"/><path d="M0 0 L4.5 -4.5 Q7.1 -2.3 40.0 0.0 Z"/><path d="M0 0 L4.5 4.5 Q2.3 7.1 0.0 40.0 Z"/><path d="M0 0 L-4.5 4.5 Q-7.1 2.3 -40.0 0.0 Z"/></g><g fill="#ff9f1c"><path d="M0 0 L4.5 -4.5 Q2.3 -7.1 0.0 -40.0 Z"/><path d="M0 0 L4.5 4.5 Q7.1 2.3 40.0 0.0 Z"/><path d="M0 0 L-4.5 4.5 Q-2.3 7.1 0.0 40.0 Z"/><path d="M0 0 L-4.5 -4.5 Q-7.1 -2.3 -40.0 0.0 Z"/></g></g><g transform="translate(120 404)"><g fill="#ffe27a"><path d="M0 0 L-4.1 -4.1 Q-2.0 -6.4 0.0 -36.0 Z"/><path d="M0 0 L4.1 -4.1 Q6.4 -2.0 36.0 0.0 Z"/><path d="M0 0 L4.1 4.1 Q2.0 6.4 0.0 36.0 Z"/><path d="M0 0 L-4.1 4.1 Q-6.4 2.0 -36.0 0.0 Z"/></g><g fill="#ff9f1c"><path d="M0 0 L4.1 -4.1 Q2.0 -6.4 0.0 -36.0 Z"/><path d="M0 0 L4.1 4.1 Q6.4 2.0 36.0 0.0 Z"/><path d="M0 0 L-4.1 4.1 Q-2.0 6.4 0.0 36.0 Z"/><path d="M0 0 L-4.1 -4.1 Q-6.4 -2.0 -36.0 0.0 Z"/></g></g><g transform="translate(404 396)"><g fill="#ffe27a"><path d="M0 0 L-5.9 -5.9 Q-2.9 -9.2 0.0 -52.0 Z"/><path d="M0 0 L5.9 -5.9 Q9.2 -2.9 52.0 0.0 Z"/><path d="M0 0 L5.9 5.9 Q2.9 9.2 0.0 52.0 Z"/><path d="M0 0 L-5.9 5.9 Q-9.2 2.9 -52.0 0.0 Z"/></g><g fill="#ff9f1c"><path d="M0 0 L5.9 -5.9 Q2.9 -9.2 0.0 -52.0 Z"/><path d="M0 0 L5.9 5.9 Q9.2 2.9 52.0 0.0 Z"/><path d="M0 0 L-5.9 5.9 Q-2.9 9.2 0.0 52.0 Z"/><path d="M0 0 L-5.9 -5.9 Q-9.2 -2.9 -52.0 0.0 Z"/></g></g>
+</svg>

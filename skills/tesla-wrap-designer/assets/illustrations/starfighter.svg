@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+<!--
+  starfighter.svg - Original sleek swept-wing starfighter, nose pointing up, lit from the left, twin engine glow.
+  viewBox 512x512, transparent background, drawn upright. Original artwork.
+  Recolour by find/replace of these hex values (keep the case):
+       HULL_LIGHT    #e8eef7  lit hull panels
+       HULL          #aab6c8  hull mid-tone
+       HULL_DARK     #4a566e  hull shadow / underside
+       ACCENT        #ff4d3d  stripes, wing tips
+       ACCENT_DARK   #a3201a  accent shadow
+       CANOPY        #59d4ff  cockpit glass
+       ENGINE_GLOW   #7fe8ff  engine glow and exhaust
+       OUTLINE       #1c2336  panel lines and engine housings
+-->
+<defs>
+<linearGradient id="sf_h" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#e8eef7"/><stop offset="0.5" stop-color="#aab6c8"/><stop offset="1" stop-color="#4a566e"/></linearGradient>
+<linearGradient id="sf_wl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8eef7"/><stop offset="1" stop-color="#8794ac"/></linearGradient>
+<linearGradient id="sf_wr" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a869e"/><stop offset="1" stop-color="#2f3850"/></linearGradient>
+<linearGradient id="sf_a" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff7a63"/><stop offset="1" stop-color="#a3201a"/></linearGradient>
+<linearGradient id="sf_c" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d8f6ff"/><stop offset="0.45" stop-color="#59d4ff"/><stop offset="1" stop-color="#14588a"/></linearGradient>
+<linearGradient id="sf_e" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe8ff" stop-opacity="0.95"/><stop offset="1" stop-color="#7fe8ff" stop-opacity="0"/></linearGradient>
+<linearGradient id="sf_eh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6c788f"/><stop offset="0.5" stop-color="#2b3348"/><stop offset="1" stop-color="#10141f"/></linearGradient>
+<radialGradient id="sf_gl" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ffffff" stop-opacity="1"/><stop offset="0.35" stop-color="#7fe8ff" stop-opacity="0.9"/><stop offset="1" stop-color="#7fe8ff" stop-opacity="0"/></radialGradient>
+<filter id="sf_b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+</defs>
+<!-- exhaust -->
+<path d="M200 420 L230 420 L215 508 Z" fill="url(#sf_e)"/><path d="M282 420 L312 420 L297 508 Z" fill="url(#sf_e)"/>
+<!-- left wing (lit) -->
+<path d="M236 190 L46 396 L36 452 L112 436 L238 340 Z" fill="url(#sf_wl)" stroke="#1c2336" stroke-width="4" stroke-linejoin="round"/>
+<path d="M236 190 L46 396 L66 396 L238 232 Z" fill="#ffffff" opacity=".55"/>
+<path d="M46 396 L36 452 L112 436 L100 408 Z" fill="url(#sf_a)" stroke="#1c2336" stroke-width="4" stroke-linejoin="round"/>
+<path d="M150 330 L238 270" stroke="#1c2336" stroke-width="3" opacity=".5" fill="none"/>
+<!-- right wing (shadow) -->
+<path d="M276 190 L466 396 L476 452 L400 436 L274 340 Z" fill="url(#sf_wr)" stroke="#1c2336" stroke-width="4" stroke-linejoin="round"/>
+<path d="M276 190 L466 396 L446 396 L274 232 Z" fill="#aab6c8" opacity=".35"/>
+<path d="M466 396 L476 452 L400 436 L412 408 Z" fill="url(#sf_a)" stroke="#1c2336" stroke-width="4" stroke-linejoin="round" opacity=".85"/>
+<path d="M362 330 L274 270" stroke="#000" stroke-width="3" opacity=".35" fill="none"/>
+<!-- engines -->
+<rect x="196" y="352" width="38" height="76" rx="12" fill="url(#sf_eh)" stroke="#1c2336" stroke-width="4"/>
+<rect x="278" y="352" width="38" height="76" rx="12" fill="url(#sf_eh)" stroke="#1c2336" stroke-width="4"/>
+<ellipse cx="215" cy="428" rx="13" ry="8" fill="#fff"/><ellipse cx="297" cy="428" rx="13" ry="8" fill="#fff"/>
+<circle cx="215" cy="432" r="30" fill="url(#sf_gl)"/><circle cx="297" cy="432" r="30" fill="url(#sf_gl)"/>
+<!-- fuselage -->
+<path d="M256 22 C270 70 298 150 302 240 L306 360 C306 392 292 410 256 416 C220 410 206 392 206 360 L210 240 C214 150 242 70 256 22 Z" fill="url(#sf_h)" stroke="#1c2336" stroke-width="4" stroke-linejoin="round"/>
+<path d="M256 22 C242 70 214 150 210 240 L206 360 C206 392 220 410 256 416 L256 22 Z" fill="#ffffff" opacity=".35"/>
+<path d="M256 22 C270 70 298 150 302 240 L306 360 C306 392 292 410 256 416 Z" fill="#10182e" opacity=".22"/>
+<path d="M240 250 L240 340 M272 250 L272 340" stroke="#1c2336" stroke-width="3" opacity=".4" fill="none"/>
+<path d="M256 292 L256 394" stroke="url(#sf_a)" stroke-width="12" fill="none"/>
+<!-- canopy -->
+<path d="M256 96 C276 130 282 176 280 214 C270 226 242 226 232 214 C230 176 236 130 256 96 Z" fill="url(#sf_c)" stroke="#1c2336" stroke-width="4" stroke-linejoin="round"/>
+<path d="M250 118 C240 146 238 180 242 204" stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none" opacity=".85"/>
+<circle cx="296" cy="440" r="0"/>
+</svg>

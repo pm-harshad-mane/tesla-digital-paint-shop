@@ -69,6 +69,14 @@ def check(placements: list[dict], panels: dict[int, dict]) -> list[dict]:
     return out
 
 
+def front_hint(expected: float, square: bool = True) -> str:
+    """Where the car's front is in the as-on-car view (the UV crop rotated by -expected).
+    The car's front is the top of the canvas on 1024x1024 layouts and the left on Cybertruck."""
+    uv_front = 90 if square else 180  # direction of the car's front in UV, degrees CCW from +x
+    d = round(uv_front - expected) % 360
+    return {90: "front ^", 270: "front v", 0: "front >", 180: "< front"}.get(d, "")
+
+
 def _caption_tile(img: Image.Image, caption: str, good: bool, width: int) -> Image.Image:
     img = img.copy()
     img.thumbnail((width, width), Image.LANCZOS)
@@ -102,12 +110,13 @@ def _as_on_car(wrap: Image.Image, bbox, expected: float, pad: int = 14) -> Image
 def reads_on_car_sheet(wrap: Image.Image, results: list[dict], width: int = 320) -> Image.Image | None:
     """Each placed element as it will appear on the car. Text must read normally."""
     wrap = wrap.convert("RGB")
+    square = wrap.width == wrap.height
     tiles = []
     for r in results:
         if r.get("expected") is None:
             continue
         label = str(r["label"]).replace("\n", " ")[:22]
-        cap = f'{"OK" if r["ok"] else r["verdict"]} | p{r["panel"]} | {label}'
+        cap = f'{"OK" if r["ok"] else r["verdict"]} | p{r["panel"]} {front_hint(r["expected"], square)} | {label}'
         tiles.append(_caption_tile(_as_on_car(wrap, r["bbox"], r["expected"]), cap, r["ok"], width))
     return _grid(tiles, min(4, len(tiles)), width) if tiles else None
 
@@ -117,12 +126,13 @@ def panel_views_sheet(wrap: Image.Image, panels: dict[int, dict], panel_map: np.
     """Every sizeable panel rotated the way it appears on the car (for art without a spec,
     e.g. user-supplied PNGs): any lettering visible here must read normally."""
     wrap = wrap.convert("RGB")
+    square = wrap.width == wrap.height
     total = wrap.width * wrap.height
     tiles = []
     for pid, p in sorted(panels.items()):
         if p["area"] < min_area_frac * total:
             continue
-        cap = f'panel {pid} ({p.get("region", "?")}) as on car'
+        cap = f'panel {pid} ({p.get("region", "?")}) {front_hint(float(p.get("upright_rotate", 0)), square)}'
         src = wrap
         if panel_map is not None:  # dim neighbouring panels so only this panel is judged
             arr = np.asarray(wrap).astype(np.float32)

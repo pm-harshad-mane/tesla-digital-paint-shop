@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" width="512" height="512">
+<!--
+  racing_roundel.svg - Race number roundel with bezel ticks and twin stripes; edit the <text> content for another number.
+  viewBox 512x512, transparent background, drawn upright. Original artwork.
+  Recolour by find/replace of these hex values (keep the case):
+       RIM_LIGHT     #ffffff  outer ring highlight
+       RIM           #d7dde8  outer ring
+       RIM_DARK      #6c778c  ring shade
+       PRIMARY       #e11d2e  disc colour
+       PRIMARY_DARK  #8a0f1c  disc shade
+       STRIPE        #ffffff  racing stripes
+       NUMBER        #101522  numeral fill (text element)
+       TICK          #101522  bezel ticks
+-->
+<defs>
+<linearGradient id="rr_r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#d7dde8"/><stop offset="1" stop-color="#6c778c"/></linearGradient>
+<radialGradient id="rr_d" cx="0.5" cy="0.5" r="0.6" fx="0.35" fy="0.28"><stop offset="0" stop-color="#ff4a58"/><stop offset="0.55" stop-color="#e11d2e"/><stop offset="1" stop-color="#8a0f1c"/></radialGradient>
+<linearGradient id="rr_s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#c9d0de"/></linearGradient>
+<linearGradient id="rr_g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+<filter id="rr_b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+<clipPath id="rr_c"><circle cx="256" cy="256" r="170"/></clipPath>
+</defs>
+<circle cx="260" cy="266" r="238" fill="#000" opacity=".35" filter="url(#rr_b)"/>
+<circle cx="256" cy="256" r="236" fill="url(#rr_r)" stroke="#3a4256" stroke-width="5"/>
+<circle cx="256" cy="256" r="214" fill="none" stroke="#101522" stroke-width="12" stroke-dasharray="6 17.8"/>
+<circle cx="256" cy="256" r="196" fill="#101522"/>
+<circle cx="256" cy="256" r="182" fill="url(#rr_d)" stroke="#fff" stroke-width="5"/>
+<g clip-path="url(#rr_c)">
+<g transform="rotate(-18 256 256)">
+<rect x="196" y="40" width="44" height="432" fill="url(#rr_s)"/>
+<rect x="272" y="40" width="44" height="432" fill="url(#rr_s)"/>
+<rect x="196" y="40" width="44" height="432" fill="#000" opacity=".06"/>
+</g></g>
+<ellipse cx="256" cy="160" rx="140" ry="76" fill="url(#rr_g)" opacity=".7" transform="rotate(-8 256 160)"/>
+<circle cx="256" cy="256" r="182" fill="none" stroke="#000" stroke-opacity=".25" stroke-width="3"/>
+<text x="262" y="362" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-weight="900" font-size="300" fill="#000" opacity=".3">7</text>
+<text x="256" y="354" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-weight="900" font-size="300" fill="#101522" stroke="#ffffff" stroke-width="12" stroke-linejoin="round" paint-order="stroke">7</text>
+<text x="256" y="354" text-anchor="middle" font-family="Impact, Arial Black, sans-serif" font-weight="900" font-size="300" fill="#101522">7</text>
+</svg>
