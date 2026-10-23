@@ -1,6 +1,7 @@
 # Derived template cache (masks, panel maps)
 skills/tesla-wrap-designer/.cache/
-dist/
+dist/*
+!dist/tesla-wrap-designer.zip
 __pycache__/
 *.pyc
 .DS_Store
