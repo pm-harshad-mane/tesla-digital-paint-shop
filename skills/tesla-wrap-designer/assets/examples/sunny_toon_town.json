@@ -182,11 +182,11 @@
   },
   {
    "type": "text",
-   "text": "SUNNY TOON TOWN",
+   "text": "SUNNY\nTOON TOWN",
    "font": "rounded",
    "panel": [
-    "front",
-    "rear"
+    "hood",
+    "trunk"
    ],
    "color": "#ffffff",
    "stroke": {

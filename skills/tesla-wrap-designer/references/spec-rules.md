@@ -26,6 +26,10 @@ Re-check the upstream README when Tesla adds models; update `models.json` if it 
 - Panels are cut by seams. Art crossing a seam continues on a different, often rotated or
   distant part of the car. Keep critical elements (faces, text, logos) **inside one panel**
   with ≥ 12 px margin from its outline; let backgrounds/patterns flow across seams.
+- **Text orientation is verified on every render** (`wrapkit/orientation.py`): each text
+  element's rotation must equal the `upright_rotate` of the panel it lands on (±15°), or the
+  render fails as UPSIDE-DOWN / SIDEWAYS / OFF-CAR. `review/<stem>_orientation.png` shows each
+  element as it appears on the car for a visual confirmation.
 - Side panels are laid out rotated in UV space (long axis vertical on most 1024² templates).
   Text on a side panel must be rotated to that panel's `angle_deg` / `long_axis` from
   `panels.json`, or it will appear vertical on the car. Mirror-image left/right panels: text

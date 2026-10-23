@@ -95,8 +95,8 @@
    "comment": "placeholder: replace with the birthday person's name",
    "font": "rounded",
    "panel": [
-    "front",
-    "rear"
+    "hood",
+    "trunk"
    ],
    "color": "#fff6c9",
    "stroke": {
