@@ -187,7 +187,8 @@ folder can be copied to a USB `Wraps/` directory without uploading review images
 ## Portability
 
 The skill folder must work unmodified on Claude.ai, the Claude API (no network, read-only
-skill dir), Claude Code / Agent SDK, and other Agent Skills hosts. Rules:
+skill dir), Claude Code / Agent SDK, ChatGPT (Skills; outputs in `/mnt/data`), OpenAI Codex
+(`~/.agents/skills`), and other Agent Skills hosts. Rules:
 - Only Pillow + numpy at runtime; scipy, cairosvg and Chrome are optional accelerators.
 - Never assume the skill dir is writable (cache falls back to home or temp).
 - Never assume network (templates are bundled).

@@ -11,8 +11,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-# Folders that platforms expose to the user for downloads, most specific first.
-OUTPUT_DIR_CANDIDATES = ("/mnt/user-data/outputs", "/mnt/outputs")
+# Folders that platforms expose to the user for downloads, most specific first
+# (Claude.ai: /mnt/user-data/outputs; ChatGPT code sandbox: /mnt/data).
+OUTPUT_DIR_CANDIDATES = ("/mnt/user-data/outputs", "/mnt/outputs", "/mnt/data")
 
 
 def _version(mod: str):
