@@ -58,9 +58,41 @@ def skill_files():
             yield p, rel
 
 
+FIXED_TIME = (2020, 1, 1, 0, 0, 0)  # constant timestamps keep the zip byte-stable between builds
+
+
+def write_zip(out: Path, entries) -> None:
+    """Deterministic zip: sorted entries, fixed timestamps and permissions."""
+    with zipfile.ZipFile(out, "w") as z:
+        for src, rel in sorted(entries, key=lambda e: e[1].as_posix()):
+            info = zipfile.ZipInfo(f"{SKILL.name}/{rel.as_posix()}", FIXED_TIME)
+            info.compress_type = zipfile.ZIP_DEFLATED
+            info.external_attr = 0o644 << 16
+            z.writestr(info, src.read_bytes(), compresslevel=9)
+
+
+def check_zip(out: Path, entries) -> int:
+    """Compare the committed zip's file list and contents with the sources."""
+    if not out.exists():
+        print(f"{out} is missing - run: python3 tools/build_skill.py")
+        return 1
+    want = {f"{SKILL.name}/{rel.as_posix()}": src.read_bytes() for src, rel in entries}
+    with zipfile.ZipFile(out) as z:
+        have = {n: z.read(n) for n in z.namelist()}
+    stale = sorted(n for n in want.keys() | have.keys() if want.get(n) != have.get(n))
+    if stale:
+        print(f"{out} is out of date ({len(stale)} files differ, e.g. {stale[:5]}).\n"
+              "Run: python3 tools/build_skill.py  and commit dist/tesla-wrap-designer.zip")
+        return 1
+    print(f"{out} matches the skill sources ({len(want)} files)")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out-dir", type=Path, default=ROOT / "dist")
+    ap.add_argument("--check", action="store_true",
+                    help="verify the committed zip matches the skill sources (used by CI); no build")
     a = ap.parse_args()
 
     check_skill()
@@ -72,9 +104,9 @@ def main() -> int:
     if missing:
         sys.exit("missing bundled templates (run tools/update_templates.py): "
                  + ", ".join(m["id"] for m in missing))
-    with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED) as z:
-        for src, rel in entries:
-            z.write(src, f"{SKILL.name}/{rel.as_posix()}")
+    if a.check:
+        return check_zip(out, entries)
+    write_zip(out, entries)
     size = out.stat().st_size
     if size > MAX_ZIP_BYTES:
         sys.exit(f"{out} is {size:,} bytes; limit is {MAX_ZIP_BYTES:,}")

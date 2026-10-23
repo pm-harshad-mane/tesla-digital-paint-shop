@@ -1,0 +1,26 @@
+name: skill
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r skills/tesla-wrap-designer/requirements.txt
+      - name: Committed zip matches the skill sources
+        run: python tools/build_skill.py --check
+      - name: Self-test (all models, offline)
+        env:
+          TESLA_WRAP_SVG: mini
+        run: python skills/tesla-wrap-designer/scripts/selftest.py

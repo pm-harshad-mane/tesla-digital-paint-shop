@@ -20,8 +20,9 @@ support the `SKILL.md` format.
 
 ## Install
 
-Download a zip from Releases, or build one with `python3 tools/build_skill.py`
-(see [Building](#building)).
+**Download the ready-made skill:
+[`dist/tesla-wrap-designer.zip`](https://github.com/pm-harshad-mane/tesla-digital-paint-shop/raw/main/dist/tesla-wrap-designer.zip)**
+(always built from the current `main`), or build it yourself; see [Building](#building).
 
 | Platform | How |
 |---|---|
@@ -44,7 +45,7 @@ every supported model are bundled in `assets/templates/`.
 ## Using with ChatGPT
 
 OpenAI supports the same `SKILL.md` skill format in ChatGPT and Codex, so the zip from
-[Building](#building) (or Releases) works unchanged. The skill runs its Python scripts in
+[Install](#install) works unchanged. The skill runs its Python scripts in
 ChatGPT's code sandbox; Tesla's templates are bundled, so no network access is needed.
 
 ### ChatGPT (web and desktop)
@@ -97,6 +98,12 @@ python3 tools/update_templates.py   # maintainers: refresh bundled templates fro
 The build checks SKILL.md (name format, ≤ 200-character description for Claude.ai,
 < 500 lines) and the 30 MB size limit. The zip contains the skill folder at its root, which is
 the layout every platform above accepts.
+
+The zip is committed to the repo so users can download it directly. **Whenever you change
+anything under `skills/tesla-wrap-designer/`, rebuild and commit the zip in the same commit.**
+The build is deterministic, so the zip only changes when the skill does. GitHub Actions
+(`.github/workflows/skill.yml`) runs `python3 tools/build_skill.py --check` and the self-test
+on every push and pull request, and fails if the committed zip is out of date.
 
 When Tesla adds or changes templates: bump `source_ref` (and add new models) in
 `references/models.json`, run `tools/update_templates.py`, re-check
