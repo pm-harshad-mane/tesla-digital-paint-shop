@@ -38,7 +38,8 @@ Explicit `rotate` always wins. On model3-2024-base the biggest side areas are 6+
 column); 1 and 5 are the front and rear bumpers; 2 the hood. Per-model ids: `references/panel-guide.md`.
 
 **Region selectors (portable across models).** Instead of ids, `panel` accepts `"hood"`, `"trunk"`,
-`"largest"`, `"front"`, `"rear"`, `"side"`, `"pillar"` (or a list of them). `"hood"` / `"trunk"` pick the
+`"largest"`, `"front"`, `"rear"`, `"side"`, `"side_all"`, `"pillar"` (or a list of them). `"side_all"` is every
+side panel, merged into one group per side of the car, for panoramic art. `"hood"` / `"trunk"` pick the
 hood / trunk-or-liftgate (the front / rear panel nearest the canvas centre) — use these for emblems and words.
 `"front"` / `"rear"` pick the largest front / rear panel, which is usually the **bumper** (curved: patterns, not
 text). `"side"` yields one panel per car side (mirrored, both upright). With `"span": true` a selector merges all
@@ -112,6 +113,12 @@ Stroke/shadow/glow sizes are absolute px. Effects offset in the text's own orien
 rounded), `feather` px edge softening, `remove_bg` (flood-fill from the border, drops the near-uniform background
 colour; `tolerance` 28), `tint` colour (+ `tint_strength` 0-1, default 1: recolours via luminance, ideal for white logos).
 Do not use copyrighted logos or characters.
+
+**Panel-filling art (image/svg)**: `"fill_panel": true` covers the whole panel (group) and cuts the art
+along its outline instead of fitting it inside. `"image_front": "left"|"right"` declares which way the art
+faces; it is mirrored on panels where the car's front is the other way (never use it on art containing
+lettering). For `fit: "cover"`, `"focus": [fx, fy]` (0-1) moves the crop window. Used by AI image mode
+(`references/ai-image-mode.md`).
 
 ### svg
 `src` file (or `"lib:<name>"` for a bundled component from `assets/illustrations/`, e.g.
