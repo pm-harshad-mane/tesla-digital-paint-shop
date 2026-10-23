@@ -12,6 +12,9 @@ from .color import parse_color
 from .fonts import resolve_font
 
 LAST_WARNINGS: list[str] = []
+# Where each text/image/svg element landed: used by wrapkit.orientation to verify that
+# text reads upright on the car. Filled by render_spec.
+LAST_PLACEMENTS: list[dict] = []
 
 SPEC_KEYS = {"name", "model", "seed", "base_color", "layers", "size", "description", "notes", "comment"}
 COMMON = {"type", "opacity", "blend", "clip", "clip_bleed", "enabled", "name", "comment"}
@@ -374,15 +377,26 @@ def _score(P):
 
 
 def _select(ctx, name, span):
-    """Resolve a panel selector (largest|front|rear|side|pillar) into groups of ids."""
+    """Resolve a panel selector (largest|hood|trunk|front|rear|side|pillar) into groups of ids."""
     panels = list(ctx.panel_data()[0].values())
     name = name.lower()
+    if name in ("hood", "trunk"):
+        # Hood / trunk lid: the sizeable front / rear panel nearest the canvas centre
+        # (bumpers sit at the outer edges of every template layout).
+        cand = [p for p in panels if p.get("region") == ("front" if name == "hood" else "rear")]
+        if not cand:
+            return []
+        big = max(p["area"] for p in cand)
+        cand = [p for p in cand if p["area"] >= 0.3 * big]
+        cx, cy = ctx.W / 2, ctx.H / 2
+        best = min(cand, key=lambda p: (p["centroid"][0] - cx) ** 2 + (p["centroid"][1] - cy) ** 2)
+        return [[best["id"]]]
     if name == "largest":
         cand = panels
     elif name in ("front", "rear", "side", "pillar"):
         cand = [p for p in panels if p.get("region") == name]
     else:
-        raise ValueError(f"Unknown panel selector {name!r}: use ids or largest|front|rear|side|pillar")
+        raise ValueError(f"Unknown panel selector {name!r}: use ids or largest|hood|trunk|front|rear|side|pillar")
     if not cand:
         return []
     by_rot: dict = {}
@@ -422,6 +436,26 @@ def _panel_groups(ctx, L):
     return groups
 
 
+def _interior_point(ctx, P, cx, cy):
+    """A point deep inside the panel (curved panels' centroids can fall outside them):
+    erode the panel until one more step would empty it, then take the remaining pixel
+    nearest the centroid."""
+    key = ("interior", P["id"])
+    if key not in ctx._clip_cache:
+        x0, y0, x1, y1 = P["bbox"]
+        m = np.zeros((y1 - y0 + 2, x1 - x0 + 2), bool)
+        m[1:-1, 1:-1] = ctx.panel_data()[1][y0:y1, x0:x1] == P["id"]
+        while True:
+            nxt = ~_dilate(~m, 2)
+            if not nxt.any():
+                break
+            m = nxt
+        ys, xs = np.nonzero(m)
+        i = int(np.argmin((xs + x0 - 1 - cx) ** 2 + (ys + y0 - 1 - cy) ** 2))
+        ctx._clip_cache[key] = (float(xs[i] + x0 - 1), float(ys[i] + y0 - 1))
+    return ctx._clip_cache[key]
+
+
 def _panel_frame(ctx, group, rot_override, fill):
     """(cx, cy, frame_w, frame_h, rot) of a panel (or merged group) in its rotated (upright) space."""
     Ps = [ctx.panel(i) for i in group]
@@ -433,6 +467,8 @@ def _panel_frame(ctx, group, rot_override, fill):
     cy = sum(p["centroid"][1] * p["area"] for p in Ps) / tot
     if len(Ps) > 1:
         cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    else:
+        cx, cy = _interior_point(ctx, P, cx, cy)
     rot = float(rot_override if rot_override is not None else P.get("upright_rotate", 0))
     ex = 2 * min(cx - x0, x1 - cx)
     ey = 2 * min(cy - y0, y1 - cy)
@@ -537,6 +573,31 @@ def _render_text(L, size_px, ss, stroke_w):
     return (block, 0), block.width / ss, block.height / ss
 
 
+MIN_TEXT_PX = 18  # smaller lettering is unreadable in the car's 3D view; such copies are skipped
+SMALL_TEXT_PX = 28  # below this, text is drawn but flagged as hard to read
+
+
+def _record(ctx, idx, kind, label, part, rot, group=None):
+    """Remember where an element landed (bbox, dominant panel, applied rotation)."""
+    a = np.asarray(part.getchannel("A")) > 76
+    if not a.any():
+        return
+    ys, xs = np.nonzero(a)
+    entry = {"layer": idx, "kind": kind, "label": label, "rotate": float(rot or 0) % 360,
+             "bbox": [int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1],
+             "panel": None, "group": list(group) if group else None, "on_panel_frac": 0.0}
+    if ctx.model:
+        ids = ctx.panel_data()[1][a]
+        hit = ids[ids > 0]
+        if hit.size:
+            entry["panel"] = int(np.bincount(hit).argmax())
+            home = list(group) if group and len(group) > 1 else [entry["panel"]]
+            # seam lines between spanned panels belong to the span
+            covered = np.isin(ids, home) | ((ids == 0) & bool(group and len(group) > 1))
+            entry["on_panel_frac"] = round(float(covered.mean()), 3)
+    LAST_PLACEMENTS.append(entry)
+
+
 def _pad_img(img, size, m):
     out = Image.new("RGBA", size, (0, 0, 0, 0))
     out.paste(img, (m, m))
@@ -602,8 +663,11 @@ def _text(ctx, L, idx):
             if res is None:
                 continue
             part = draw(res, rot, cx, cy)
+            area = np.isin(pmap, grp)
+            if len(grp) > 1:  # deliberate span: close the seam gaps between the panels
+                area = ~_dilate(~_dilate(area, 8), 8)
+            pm = ~_dilate(~area, 6)  # keep a 6 px margin from the outer seams
             if not L.get("size"):
-                pm = ~_dilate(~np.isin(pmap, grp), 6)  # panel shrunk by a 6 px seam margin
                 a = np.asarray(part.getchannel("A")) > 76
                 tot = a.sum()
                 tries = 0
@@ -614,6 +678,22 @@ def _text(ctx, L, idx):
                     a = np.asarray(part.getchannel("A")) > 76
                     tot = a.sum()
                     tries += 1
+            a = np.asarray(part.getchannel("A")) > 76
+            if not a.any():
+                continue
+            ys, xs = np.nonzero(a)
+            thickness = min(xs.max() - xs.min(), ys.max() - ys.min()) + 1
+            label = str(L["text"]).replace("\n", " ")
+            if (a & pm).sum() / a.sum() < 0.995:
+                ctx.warn.append(f"SKIPPED TEXT layer {idx} '{label}' on panel(s) {grp}: it does not fit "
+                                "inside the panel (letters would be cut by a seam). Use a larger panel, "
+                                "shorter text or a line break.")
+                continue
+            if thickness < MIN_TEXT_PX:
+                ctx.warn.append(f"SKIPPED TEXT layer {idx} '{label}' on panel(s) {grp}: only {thickness} px "
+                                "tall there, unreadable on the car. Use a larger panel or shorter text.")
+                continue
+            _record(ctx, idx, "text", L["text"], part, rot, grp)
             canvas = Image.alpha_composite(canvas, part)
         return canvas
     rot = float(rot_given or 0)
@@ -622,13 +702,16 @@ def _text(ctx, L, idx):
         res, _ = fit(w, h, 0)
         if res is None:
             return canvas
-        return draw(res, rot, x + w / 2, y + h / 2)
-    size = float(L.get("size", 120))
-    res = _render_text(L, size, ss, stroke_w)[0]
-    if res is None:
-        return canvas
-    px, py = ctx.pt(L.get("position", ["50%", "50%"]))
-    return draw(res, rot, px, py)
+        part = draw(res, rot, x + w / 2, y + h / 2)
+    else:
+        size = float(L.get("size", 120))
+        res = _render_text(L, size, ss, stroke_w)[0]
+        if res is None:
+            return canvas
+        px, py = ctx.pt(L.get("position", ["50%", "50%"]))
+        part = draw(res, rot, px, py)
+    _record(ctx, idx, "text", L["text"], part, rot)
+    return part
 
 
 # ---- image / svg
@@ -724,20 +807,26 @@ def _tint(img: Image.Image, color, strength):
     return motifs._to_img(a)
 
 
-def _place_visual(ctx, L, make_tile, default_fill_box=True):
+def _place_visual(ctx, L, idx, kind, make_tile):
     """Shared placement for image/svg: make_tile(w, h) -> RGBA tile, placed in box or panel(s)."""
     canvas = Image.new("RGBA", (ctx.W, ctx.H), (0, 0, 0, 0))
     rot_given = L.get("rotate")
+    label = L.get("src") or f"inline {kind}"
     groups = _panel_groups(ctx, L)
     if groups is not None:
         for grp in groups:
             cx, cy, fw, fh, rot = _panel_frame(ctx, grp, rot_given, float(L.get("panel_fill", 1.0)))
             tile = make_tile(fw, fh)
-            _paste_rotated(canvas, tile, (tile.width / 2, tile.height / 2), (cx, cy), rot)
+            part = Image.new("RGBA", canvas.size, (0, 0, 0, 0))
+            _paste_rotated(part, tile, (tile.width / 2, tile.height / 2), (cx, cy), rot)
+            _record(ctx, idx, kind, label, part, rot)
+            canvas = Image.alpha_composite(canvas, part)
         return canvas
     x, y, w, h = ctx.box(L.get("box", ["0%", "0%", "100%", "100%"]))
     tile = make_tile(w, h)
     _paste_rotated(canvas, tile, (tile.width / 2, tile.height / 2), (x + w / 2, y + h / 2), float(rot_given or 0))
+    if L.get("box"):  # full-canvas backgrounds are not hero elements
+        _record(ctx, idx, kind, label, canvas, rot_given)
     return canvas
 
 
@@ -756,7 +845,7 @@ def _image(ctx, L, idx):
         if L.get("tint"):
             tile = _tint(tile, L["tint"], float(L.get("tint_strength", 1.0)))
         return tile
-    return _place_visual(ctx, L, make)
+    return _place_visual(ctx, L, idx, "image", make)
 
 
 def _svg(ctx, L, idx):
@@ -767,7 +856,7 @@ def _svg(ctx, L, idx):
         data = ctx.path(L["src"]).read_text(encoding="utf-8")
     else:
         raise ValueError(f"layer {idx}: svg layer needs 'src' or 'inline'")
-    return _place_visual(ctx, L, lambda tw, th: render_svg(data, (max(1, round(tw)), max(1, round(th)))))
+    return _place_visual(ctx, L, idx, "svg", lambda tw, th: render_svg(data, (max(1, round(tw)), max(1, round(th)))))
 
 
 # ---------------------------------------------------------------- engine
@@ -775,6 +864,7 @@ def _svg(ctx, L, idx):
 def render_spec(spec: dict, spec_dir=None, warnings: list | None = None) -> Image.Image:
     """Render a design spec to an opaque-base RGBA canvas. Warnings go to LAST_WARNINGS (and `warnings`)."""
     LAST_WARNINGS.clear()
+    LAST_PLACEMENTS.clear()
     warn = LAST_WARNINGS
     for k in spec:
         if k not in SPEC_KEYS:

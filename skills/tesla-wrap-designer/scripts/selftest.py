@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import numpy as np  # noqa: E402
 from PIL import Image  # noqa: E402
 
-from wrapkit import finalize, models, naming, templates, validate  # noqa: E402
+from wrapkit import compose, orientation, finalize, models, naming, templates, validate  # noqa: E402
 
 failures: list[str] = []
 
@@ -61,6 +61,24 @@ def main() -> int:
             check(info["bytes"] <= 1_000_000 and info["ok"], f"{mid}: size {info['bytes']}")
             check(Image.open(path).size == tuple(m["canvas"]), f"{mid}: size preserved")
             rows.append((mid, len(panels), info["bytes"], info["final_mode"], len(info["steps"])))
+
+        print("[text orientation]")
+        for i, m in enumerate(models.list_models()):
+            mid = m["id"]
+            spec = {"model": mid, "layers": [{"type": "solid", "color": "#335"},
+                    {"type": "text", "text": "ON CAR", "panel": ["hood", "trunk", "side"], "color": "#fff"}]}
+            compose.render_spec(spec)
+            res = orientation.check(compose.LAST_PLACEMENTS, {p["id"]: p for p in templates.load_panels(mid)["panels"]})
+            check(len(res) >= 3 and all(r["verdict"] == "upright" for r in res),
+                  f"{mid}: panel-placed text upright ({[r['verdict'] for r in res]})")
+            hood = compose._select(compose._Ctx(spec, None, []), "hood", False)[0][0]
+            upright = templates.load_panels(mid)["panels"][hood - 1]["upright_rotate"]
+            assert templates.load_panels(mid)["panels"][hood - 1]["id"] == hood
+            bad = {"model": mid, "layers": [{"type": "solid", "color": "#335"},
+                   {"type": "text", "text": "FLIP", "panel": hood, "rotate": upright + 180, "color": "#fff"}]}
+            compose.render_spec(bad)
+            res = orientation.check(compose.LAST_PLACEMENTS, {p["id"]: p for p in templates.load_panels(mid)["panels"]})
+            check(res and res[0]["verdict"] == "UPSIDE-DOWN" and not res[0]["ok"], f"{mid}: upside-down text must fail")
 
         mid = "model3"
         w, h = models.canvas_size(mid)

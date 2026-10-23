@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from PIL import Image  # noqa: E402
 
 import make_check  # noqa: E402
-from wrapkit import compose, finalize, naming, templates, validate  # noqa: E402
+from wrapkit import compose, finalize, naming, orientation, templates, validate  # noqa: E402
 
 
 def main() -> int:
@@ -47,6 +47,7 @@ def main() -> int:
         print(f"ERROR: {type(e).__name__}: {e}", file=sys.stderr)
         return 2
     warnings = list(compose.LAST_WARNINGS)
+    placements = list(compose.LAST_PLACEMENTS)
     t_render = time.time() - t0
 
     base = spec.get("base_color", "#101010")
@@ -65,12 +66,26 @@ def main() -> int:
     chk.resize((chk.width // 2, chk.height // 2), Image.LANCZOS).save(check)
     print(f"Check image: {check}")
 
+    panels = {p["id"]: p for p in templates.load_panels(model)["panels"]}
+    orient = orientation.check(placements, panels)
+    orient_img = review / f"{stem}_orientation.png"
+    sheet = orientation.reads_on_car_sheet(Image.open(path), orient)
+    if sheet is not None:
+        sheet.save(orient_img)
+        print(f"Orientation sheet (elements as they appear on the car): {orient_img}")
+
     print(f"Rendered {path.name} for {model} in {t_render:.1f}s -> {path}")
     print(f"Size: {info['bytes']:,} bytes ({info['final_mode']}); " + "; ".join(info["steps"]))
     for w in warnings:
         print(f"WARNING: {w}")
 
     ok = info["ok"]
+    for r in orient:
+        mark = "PASS" if r["ok"] else ("FAIL" if r["severity"] == "error" else "WARN")
+        print(f"  [{mark}] text_orientation: {r['message']}")
+    if any(not r["ok"] and r["severity"] == "error" for r in orient):
+        ok = False
+        print("Orientation: FAILED - fix `rotate`/placement so text reads upright on the car")
     if not a.no_validate:
         rep = validate.validate_file(path, model)
         ok = ok and rep["ok"]
@@ -93,7 +108,10 @@ def main() -> int:
             print("WARNING: make_preview.py not found; skipped preview")
 
     print("RESULT " + json.dumps({"path": str(path), "bytes": info["bytes"], "ok": bool(ok), "model": model,
-                                   "check": str(check), "warnings": warnings}))
+                                   "check": str(check),
+                                   "orientation": str(orient_img) if sheet is not None else None,
+                                   "orientation_errors": sum(1 for r in orient if not r["ok"] and r["severity"] == "error"),
+                                   "warnings": warnings}))
     return 0 if ok else 1
 
 

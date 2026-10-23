@@ -37,12 +37,13 @@ image/svg 1.0) is the fraction of the panel extent used. Text auto-shrinks until
 Explicit `rotate` always wins. On model3-2024-base the biggest side areas are 6+10 (left column) and 7+9 (right
 column); 1 and 5 are the front and rear bumpers; 2 the hood. Per-model ids: `references/panel-guide.md`.
 
-**Region selectors (portable across models).** Instead of ids, `panel` accepts `"largest"`, `"front"`, `"rear"`,
-`"side"`, `"pillar"` (or a list of them). Each picks the most compact, largest panel of that region — `"front"` is
-normally the hood, `"rear"` the trunk/liftgate — and `"side"` yields one panel per car side (mirrored, both upright).
-With `"span": true` a selector merges all similar-sized panels of the group (e.g. both doors of a side).
-Prefer selectors in reusable specs; absolute `position`/`center`/`box` coordinates are model-specific and must be
-re-placed when the spec is rendered for another model (check `panels_overlay.png`).
+**Region selectors (portable across models).** Instead of ids, `panel` accepts `"hood"`, `"trunk"`,
+`"largest"`, `"front"`, `"rear"`, `"side"`, `"pillar"` (or a list of them). `"hood"` / `"trunk"` pick the
+hood / trunk-or-liftgate (the front / rear panel nearest the canvas centre) — use these for emblems and words.
+`"front"` / `"rear"` pick the largest front / rear panel, which is usually the **bumper** (curved: patterns, not
+text). `"side"` yields one panel per car side (mirrored, both upright). With `"span": true` a selector merges all
+similar-sized panels of the group. Prefer selectors in reusable specs; absolute `position`/`center`/`box`
+coordinates are model-specific and must be re-placed when the spec is rendered for another model (check `panels_overlay.png`).
 
 ## Layer types
 
@@ -122,11 +123,13 @@ Do not use copyrighted logos or characters.
   front/rear region).
 - Front/hood art looks **upside-down on the flat PNG** — that is correct (it reads upright on the car). Tell the user
   so they don't think it's a bug.
-- **Text on the sides — one word (or line) per door.** Do not `span` front + rear door panels with one text layer:
-  the seam between them cuts letters. Use one layer per door instead, e.g. on model3-2024-base
-  `{"text":"HAPPY","panel":[6,7]}` (front doors, both sides) and `{"text":"BIRTHDAY","panel":[10,9]}` (rear doors).
-  Read order along each side follows `upright_rotate`; on the left column (+90) text reads bottom→top, so on that side
-  the rear-door word is read first — prefer messages that work in either order (or one self-contained line per door).
+- **Text on the sides.** `"panel": "side"` puts one copy on each side. `"span": true` with ids of the front + rear
+  door of one side (e.g. `[6, 10]` and `[7, 9]` on model3-2024-base) runs one phrase across both doors: they are
+  neighbours on the car, so letters simply cross the door gap. Never span panels that are not adjacent on the car.
+- **Unreadable text is never drawn.** A text copy that ends up < 18 px tall or cut by a seam is skipped with a
+  `SKIPPED TEXT` warning — fix it with a line break (`"SUNNY\nTOON TOWN"`), shorter text or a bigger panel.
+- **Orientation is verified automatically** for every text/image/svg element (see `review/<stem>_orientation.png`);
+  place text with `panel:` and leave `rotate` unset.
 - The long rear-quarter panels (see `references/panel-guide.md`) are the best single-panel spots for a full phrase.
 - Panel text auto-fits with a 6 px seam margin; `panel_fill` 0.8 (default) is the sensible maximum on curved panels.
 - Examples: `assets/examples/birthday_bash.json`, `galactic_saga.json`, `sunny_toon_town.json` (tuned on

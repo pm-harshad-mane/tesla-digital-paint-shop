@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
-"""Build a review image for a wrap: left = art on the car surface with seams drawn,
-right = art with panel ids. Read the result to check text/heroes sit inside panels.
+"""Build review images for a wrap:
+  <stem>_check.png   left = art on the car surface with seams drawn, right = panel ids;
+  <stem>_on_car.png  every sizeable panel rotated the way it appears on the car - any
+                     lettering in it must read normally (catches upside-down/sideways text
+                     in art that did not come from a design spec, e.g. user-supplied PNGs).
 
 Note: hood/front art looks upside-down on the flat canvas by design (it is upright on the car)."""
 import argparse
@@ -12,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import numpy as np  # noqa: E402
 from PIL import Image, ImageDraw  # noqa: E402
 
-from wrapkit import templates  # noqa: E402
+from wrapkit import orientation, templates  # noqa: E402
 from wrapkit.fonts import resolve_font  # noqa: E402
 
 
@@ -63,6 +66,11 @@ def main() -> int:
         img = img.resize((int(img.width * a.scale), int(img.height * a.scale)), Image.LANCZOS)
     img.save(out)
     print(out)
+    panels = {p["id"]: p for p in templates.load_panels(a.model)["panels"]}
+    on_car = out.with_name(out.name.replace("_check.png", "") + "_on_car.png") \
+        if out.name.endswith("_check.png") else out.with_name(out.stem + "_on_car.png")
+    orientation.panel_views_sheet(Image.open(a.wrap), panels, templates.load_panel_map(a.model)).save(on_car)
+    print(on_car)
     return 0
 
 

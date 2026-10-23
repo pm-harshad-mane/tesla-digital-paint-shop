@@ -292,8 +292,8 @@
    "text": "GALACTIC SAGA",
    "font": "display",
    "panel": [
-    "front",
-    "rear"
+    "hood",
+    "trunk"
    ],
    "color": "#ffd54a",
    "stroke": {

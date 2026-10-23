@@ -18,7 +18,9 @@ inside `SKILL_DIR` unless it is writable.
 **Non-negotiables** (details in `references/spec-rules.md`):
 PNG · exact template canvas (1024×1024; **Cybertruck 1024×768**) · ≤ 1,000,000 bytes ·
 **zero transparent pixels** (they render black on the car) · filename `[A-Za-z0-9_- ]`,
-≤ 30 chars incl `.png`. Never hand over a file that has not passed validation.
+≤ 30 chars incl `.png` · **every piece of text reads upright on the car — never upside-down
+or sideways**. Never hand over a file that has not passed validation and the text-orientation
+check (step 4.3).
 
 ## Workflow
 
@@ -59,7 +61,13 @@ composition rules and theme recipes: `references/design-playbook.md`.
 - Layers 1–2 cover the whole canvas (gradient / noise / pattern).
 - Heroes (text, emblems, user photos) inside single large panels, mirrored on both sides;
   prefer region selectors (`"panel": "front"`, `"side"`) over raw coordinates.
-- One text layer per door panel — never `span` text across the door seam.
+- Side text: `"panel": "side"` (one panel per side), or `"span": true` to run one phrase across
+  the front + rear door of a side (adjacent on the car, so it reads across the door gap like a
+  real livery). Never span panels that are not neighbours on the car.
+- Place text with `panel:` (ids or `"hood"`, `"trunk"`, `"side"`) and **omit `rotate`**: the
+  engine applies each panel's `upright_rotate`. Only set `rotate` by hand when placing by
+  `position`, and then it must equal the `upright_rotate` of the panel under the text.
+- Put lettering in `text` layers, not inside SVG/images, so it can be checked automatically.
 - Illustrations: original inline SVG in an `svg` layer (works everywhere; see backends below).
 
 ### 4. Render, validate, inspect
@@ -68,20 +76,33 @@ python3 SKILL_DIR/scripts/render_wrap.py OUT_DIR/<Name>/design.json --out-dir OU
 ```
 Composes → finalizes (flatten to opaque RGB, compress ≤ 1 MB) → validates → writes
 `OUT_DIR/<File>.png` and review files in `OUT_DIR/review/` (`<stem>_check.png`,
-`<stem>_preview.html`). The last line is `RESULT {json}` (path, bytes, ok, check, warnings).
+`<stem>_preview.html`, `<stem>_orientation.png`). The last line is `RESULT {json}` (path,
+bytes, ok, check, orientation, orientation_errors, warnings).
 Then **critically review before showing the user** (view the images):
 1. The wrap PNG — attractive, on-theme, text spelled correctly?
 2. `review/<stem>_check.png` (left: art on the car surface, seams in red; right: panel ids,
    F/R = front/rear) — heroes inside panels, text along the body, nothing cut at seams.
    Hood/front art is **upside-down on the flat PNG by design** (upright on the car).
-3. Validation lines — all PASS; investigate any WARN.
-Iterate on the spec, not on pixels. Typical: 2–3 renders.
+3. **Text orientation — mandatory, every render.** Text that would be unreadable (< 18 px) or
+   cut by a seam is not drawn at all: look for `SKIPPED TEXT` warnings and re-place it.
+   Each `text_orientation` line must be PASS
+   (the render fails on upside-down, sideways or off-car text). Then view
+   `review/<stem>_orientation.png`: it shows every text/image/SVG element rotated the way it
+   appears on the car. Every word must read normally, left to right, not mirrored. Image/SVG
+   elements get WARN when rotated unusually: if they contain lettering or a face, they must
+   look upright in this sheet too.
+4. Validation lines — all PASS; investigate any WARN.
+Iterate on the spec, not on pixels. Typical: 2–3 renders. In the delivery message, state
+explicitly that text orientation was checked (e.g. "all 4 text elements verified upright").
 
 ### 5. User-supplied finished art
 ```bash
 python3 SKILL_DIR/scripts/finalize_wrap.py input.png --model <id> --name "My Wrap" --out-dir OUT_DIR
 python3 SKILL_DIR/scripts/make_check.py OUT_DIR/My_Wrap.png --model <id>
 ```
+`make_check.py` also writes `review/<stem>_on_car.png`: every panel rotated the way it appears
+on the car. **View it and confirm any lettering in the user's art reads upright**; if not,
+tell the user which panel is wrong and offer to fix it (rebuild as a layered design).
 Resizes to the template, flattens transparency, compresses, renames and validates. Warn that
 art not drawn on the template crosses seams unpredictably; offer a layered rebuild.
 
@@ -121,6 +142,7 @@ with env `TESLA_WRAP_SVG=mini|cairo|chrome`.
 ## Troubleshooting
 - **Template download blocked:** see step 2 (user attaches `template.png`).
 - **> 1 MB after compression:** lower noise contrast/density; avoid full-canvas photos.
-- **Text vertical or upside-down on the car:** place it with `panel:` (auto `upright_rotate`)
-  or set `rotate` to that panel's `upright_rotate`.
-- **Text cut at a door seam:** one text layer per door panel.
+- **`text_orientation` FAIL:** remove the manual `rotate` and place the text with `panel:`,
+  or set `rotate` to the `upright_rotate` the message says it needs.
+- **`SKIPPED TEXT` warning:** the panel is too thin/curved for that text. Use a line break,
+  shorter text, or a bigger panel (`"side"`, `"hood"`, door ids from `references/panel-guide.md`).
